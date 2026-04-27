@@ -97,12 +97,12 @@ export const PLANS: Plan[] = [
     users: 100,
     storageGb: 500,
     features: [
-      '100 utilisateurs',
-      '500 Go de stockage',
-      'SLA 99.95%',
-      'Région dédiée Afrique',
-      'SSO + audit logs',
-      'Support 24/7 + CSM dédié',
+      'Équipes de 100 commerciaux et plus',
+      'Disponibilité garantie 99,95 %',
+      'Hébergement dédié en Afrique',
+      'Connexion unique (SSO) & journal des accès',
+      'Accompagnement personnalisé',
+      'Support 24/7',
     ],
   },
 ];
