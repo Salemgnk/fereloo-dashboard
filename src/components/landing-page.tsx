@@ -4,14 +4,15 @@ import {
   Check,
   Zap,
   LayoutDashboard,
-  Database,
-  Cloud,
-  Rocket,
   ShieldCheck,
+  Rocket,
   BarChart3,
   Users,
   Menu,
-  X
+  X,
+  Database,
+  Globe,
+  Cpu
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
@@ -20,32 +21,10 @@ import { PLANS } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const FEATURES = [
-  { 
-    title: 'Isolation Totale', 
-    desc: 'Chaque client dispose de sa propre base MariaDB et son cache Redis.',
-    icon: ShieldCheck 
-  },
-  { 
-    title: 'Déploiement Éclair', 
-    desc: 'Votre CRM est prêt en moins de 90 secondes après l\'inscription.',
-    icon: Rocket 
-  },
-  { 
-    title: 'Paiement Local', 
-    desc: 'Facturation adaptée : Wave, Mobile Money et devises locales.',
-    icon: BarChart3 
-  },
-  { 
-    title: 'Support Africain', 
-    desc: 'Une équipe basée en Afrique de l\'Ouest pour vous accompagner.',
-    icon: Users 
-  },
-];
-
-const STATS = [
-  { label: 'Entreprises', value: '500+' },
-  { label: 'Disponibilité', value: '99,9%' },
-  { label: 'Pays', value: '12+' },
+  { id: '01', title: 'Isolation Totale', desc: 'Base MariaDB et cache Redis dédiés par client.' },
+  { id: '02', title: 'Déploiement Éclair', desc: 'Installation de votre CRM en moins de 90 secondes.' },
+  { id: '03', title: 'Paiement Local', desc: 'Gestion native de Wave et Mobile Money.' },
+  { id: '04', title: 'Support Réactif', desc: 'Équipe d\'assistance basée en Afrique de l\'Ouest.' },
 ];
 
 export function LandingPage() {
@@ -60,154 +39,149 @@ export function LandingPage() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-black selection:text-white overflow-x-hidden">
       
-      {/* Decorative Gradient Top */}
-      <div className="absolute inset-x-0 top-0 h-[500px] pointer-events-none opacity-50" 
-           style={{ background: 'radial-gradient(circle at 50% -10%, oklch(0.55 0.22 295 / 0.1) 0%, transparent 70%)' }} />
-
-      {/* ── NAVIGATION ── */}
-      <nav className="relative z-50 mx-auto max-w-7xl px-6 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-2 group cursor-pointer">
-          <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-105">
-            <Zap className="h-6 w-6" fill="currentColor" />
+      {/* ── HEADER ── */}
+      <header className="mx-auto max-w-7xl px-6 py-8 flex items-center justify-between border-b border-border">
+        <div className="flex items-center gap-3">
+          <div className="h-6 w-6 bg-foreground flex items-center justify-center text-background rounded-[2px]">
+            <Zap className="h-4 w-4" fill="currentColor" />
           </div>
-          <span className="text-2xl font-bold tracking-tight text-foreground font-display">Fereloo</span>
+          <span className="text-sm font-bold uppercase tracking-tighter">Fereloo</span>
         </div>
 
-        <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-muted-foreground">
-          <a href="#fonctionnalites" className="hover:text-primary transition-colors">Fonctionnalités</a>
-          <a href="#tarifs" className="hover:text-primary transition-colors">Tarifs</a>
-          <Button variant="ghost" onClick={() => signIn()} className="hover:bg-primary/5">Connexion</Button>
-          <Button onClick={() => signIn()} className="px-6 shadow-xl shadow-primary/20">Essai Gratuit</Button>
-        </div>
+        <nav className="hidden md:flex items-center gap-10 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+          <a href="#features" className="hover:text-foreground transition-colors">Système</a>
+          <a href="#pricing" className="hover:text-foreground transition-colors">Tarifs</a>
+          <button onClick={() => signIn()} className="hover:text-foreground transition-colors">Connexion</button>
+          <button 
+            onClick={() => signIn()} 
+            className="bg-foreground text-background px-4 py-2 hover:bg-foreground/90 transition-all rounded-[2px]"
+          >
+            [ Démarrer ]
+          </button>
+        </nav>
 
-        <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X /> : <Menu />}
+        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-      </nav>
+      </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Nav */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-background/95 backdrop-blur-md pt-24 px-6 md:hidden">
-          <div className="flex flex-col gap-6 text-center">
-             <a href="#fonctionnalites" onClick={() => setMobileOpen(false)} className="text-xl font-bold">Fonctionnalites</a>
-             <a href="#tarifs" onClick={() => setMobileOpen(false)} className="text-xl font-bold">Tarifs</a>
-             <hr className="border-border" />
-             <Button size="lg" onClick={() => signIn()} className="w-full py-8 text-lg font-bold">Démarrer</Button>
-          </div>
+        <div className="fixed inset-0 z-50 bg-background pt-24 px-8 md:hidden border-b border-border">
+           <nav className="flex flex-col gap-8 text-sm font-bold uppercase tracking-widest">
+              <a href="#features" onClick={() => setMobileOpen(false)}>Système</a>
+              <a href="#pricing" onClick={() => setMobileOpen(false)}>Tarifs</a>
+              <button onClick={() => signIn()} className="text-left">Démarrer</button>
+           </nav>
         </div>
       )}
 
-      {/* ── HERO SECTION ── */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 pt-16 pb-24 md:pt-28 md:pb-40 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-8 animate-fade-in">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          Disponible partout en Afrique
-        </div>
-
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.05] mb-8 font-display">
-          Le CRM qui parle <br className="hidden sm:block" />
-          <span className="text-primary italic">votre langue.</span>
-        </h1>
-
-        <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed mb-12 font-medium">
-          Déployez votre propre instance Frappe CRM en un clic. Sécurisé, isolé et facturé localement pour les entreprises ambitieuses.
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-          <Button size="lg" onClick={() => signIn()} className="h-14 px-10 text-lg font-bold shadow-2xl shadow-primary/30 w-full sm:w-auto transition-transform hover:scale-105 active:scale-95">
-            Démarrer gratuitement <ArrowRight className="ml-2" />
-          </Button>
-          <div className="text-sm text-muted-foreground font-semibold">
-            Sans carte bancaire · Installé en 90s
+      {/* ── HERO ── */}
+      <section className="mx-auto max-w-7xl px-6 pt-20 pb-20 md:pt-32 md:pb-32 border-b border-border">
+        <div className="max-w-4xl">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-8">
+            // Infrastructure_Orchestration_v2
           </div>
-        </div>
-
-        {/* Hero Image / Dashboard Mockup */}
-        <div className="relative mx-auto max-w-5xl rounded-2xl border-[8px] border-secondary bg-secondary/50 shadow-2xl overflow-hidden animate-fade-up">
-          <img src="/placeholder.svg" alt="Dashboard Preview" className="w-full aspect-[16/9] object-cover opacity-80" />
-          <div className="absolute inset-0 flex items-center justify-center">
-             <div className="p-6 bg-background/80 backdrop-blur-xl border border-border rounded-2xl shadow-2xl flex items-center gap-6 animate-pulse">
-                <LayoutDashboard className="h-12 w-12 text-primary" />
-                <div className="text-left text-sm font-bold">
-                   <div>INITIALISATION SYSTÈME...</div>
-                   <div className="text-muted-foreground">Déploiement de votre instance Frappe</div>
-                </div>
-             </div>
+          <h1 className="text-4xl md:text-7xl font-bold tracking-tighter leading-[0.95] mb-12 font-display">
+            Gérez vos clients.<br/>
+            <span className="text-muted-foreground/30 italic">Propulsez votre croissance.</span>
+          </h1>
+          <p className="max-w-xl text-sm md:text-lg text-muted-foreground leading-relaxed mb-12 font-medium">
+            La plateforme SaaS qui automatise le déploiement de vos instances Frappe CRM. 
+            Une infrastructure isolée, sécurisée et optimisée pour les PME en Afrique.
+          </p>
+          <div className="flex flex-col sm:flex-row items-start gap-6">
+            <Button 
+              size="lg" 
+              onClick={() => signIn()} 
+              className="h-12 px-8 rounded-[2px] font-bold text-xs uppercase tracking-widest shadow-none"
+            >
+              Exécuter le déploiement <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            <div className="font-mono text-[10px] text-muted-foreground uppercase leading-tight">
+              > Aucun frais caché<br/>
+              > Prêt en 90 secondes
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── FEATURES ── */}
-      <section id="fonctionnalites" className="bg-secondary/30 py-24 md:py-32">
+      {/* ── SYSTEM SPECS (FEATURES) ── */}
+      <section id="features" className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-4 border-b border-border divide-y md:divide-y-0 md:divide-x divide-border">
+        {FEATURES.map((f) => (
+          <div key={f.id} className="p-8 group hover:bg-secondary/50 transition-colors">
+            <div className="font-mono text-[10px] text-muted-foreground mb-6 opacity-40 group-hover:opacity-100 transition-opacity">ID_{f.id}</div>
+            <h3 className="text-sm font-bold uppercase tracking-tight mb-3">{f.title}</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed font-medium">{f.desc}</p>
+          </div>
+        ))}
+      </section>
+
+      {/* ── ARCHITECTURE MOCKUP ── */}
+      <section className="bg-secondary/20 py-20 md:py-32 border-b border-border">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            {FEATURES.map((f, i) => (
-              <div key={i} className="flex flex-col gap-4">
-                <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-2">
-                  <f.icon className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-bold font-display">{f.title}</h3>
-                <p className="text-muted-foreground leading-relaxed font-medium">{f.desc}</p>
+           <div className="border border-border bg-background p-1 md:p-2 rounded-[4px] shadow-2xl">
+              <div className="bg-secondary/30 aspect-video rounded-[2px] flex items-center justify-center relative overflow-hidden">
+                 <div className="grid grid-cols-3 gap-8 md:gap-16 relative z-10 scale-75 md:scale-100">
+                    <div className="flex flex-col items-center gap-4">
+                       <Database className="h-10 w-10 text-muted-foreground" />
+                       <div className="h-1 w-12 bg-border" />
+                       <span className="font-mono text-[9px] uppercase font-bold">SQL_DB</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-4">
+                       <Cpu className="h-10 w-10 text-foreground" />
+                       <div className="h-1 w-12 bg-primary" />
+                       <span className="font-mono text-[9px] uppercase font-bold text-primary">CRM_CORE</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-4">
+                       <Globe className="h-10 w-10 text-muted-foreground" />
+                       <div className="h-1 w-12 bg-border" />
+                       <span className="font-mono text-[9px] uppercase font-bold">EDGE_NET</span>
+                    </div>
+                 </div>
+                 {/* Decorative background lines */}
+                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-foreground)_1px,transparent_1px)] bg-[size:24px_24px]" />
+                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── STATS ── */}
-      <section className="py-20 border-y border-border">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 text-center">
-             {STATS.map((s, i) => (
-               <div key={i}>
-                  <div className="text-5xl md:text-6xl font-black text-primary mb-2 font-display">{s.value}</div>
-                  <div className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{s.label}</div>
-               </div>
-             ))}
-          </div>
+           </div>
         </div>
       </section>
 
       {/* ── PRICING ── */}
-      <section id="tarifs" className="mx-auto max-w-7xl px-6 py-24 md:py-40">
-        <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 font-display tracking-tight">Des tarifs adaptés</h2>
-          <p className="text-muted-foreground text-lg font-medium">Facturation simple en FCFA. Sans engagement.</p>
+      <section id="pricing" className="mx-auto max-w-7xl px-6 py-24 md:py-40">
+        <div className="mb-20">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-4">
+            // Allocation_Tiers
+          </div>
+          <h2 className="text-3xl md:text-5xl font-bold font-display tracking-tighter">Des tarifs transparents.</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border border border-border">
           {PLANS.map((p) => (
-            <div key={p.id} className={cn(
-              "p-10 rounded-[2rem] border-2 transition-all flex flex-col",
-              p.highlighted 
-                ? "border-primary bg-white shadow-2xl shadow-primary/10 scale-105 z-10" 
-                : "border-border bg-card/50 hover:border-primary/20"
-            )}>
-              <div className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-6">{p.name}</div>
-              <div className="flex items-baseline gap-2 mb-8">
-                <span className="text-5xl font-black font-display">{p.priceFcfa.toLocaleString('fr-FR')}</span>
-                <span className="text-muted-foreground font-bold">FCFA{p.period}</span>
+            <div key={p.id} className="bg-background p-10 flex flex-col group hover:bg-secondary/50 transition-colors">
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-8">{p.name}</div>
+              <div className="flex items-baseline gap-2 mb-12">
+                <span className="text-4xl md:text-5xl font-black font-display tracking-tighter">{p.priceFcfa.toLocaleString('fr-FR')}</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase">FCFA{p.period}</span>
               </div>
               
-              <ul className="flex-1 space-y-4 mb-10 text-sm font-semibold">
-                <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary" /> {p.users} Utilisateurs</li>
-                <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary" /> {p.storageGb} Go Stockage</li>
-                {p.features.map((f, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-primary" /> {f}
+              <ul className="flex-1 space-y-4 mb-12">
+                {p.features.slice(0, 4).map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-tight text-muted-foreground">
+                    <Check className="h-3 w-3 text-foreground" strokeWidth={3} /> {f}
                   </li>
                 ))}
               </ul>
 
               <Button 
                 onClick={() => signIn()}
-                size="lg" 
-                variant={p.highlighted ? 'default' : 'outline'} 
-                className={cn("w-full py-6 font-bold", p.highlighted && "shadow-lg shadow-primary/20")}
+                variant="outline"
+                className="w-full rounded-[2px] font-bold text-[10px] uppercase tracking-widest border-border group-hover:border-foreground transition-all"
               >
-                Choisir {p.name}
+                Sélectionner
               </Button>
             </div>
           ))}
@@ -215,22 +189,37 @@ export function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-secondary/20 pt-20 pb-10 border-t border-border">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-10">
-          <div className="flex items-center gap-3">
-             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
-                <Zap className="h-5 w-5" fill="currentColor" />
-             </div>
-             <span className="text-xl font-bold tracking-tight font-display">Fereloo</span>
-          </div>
-          <div className="flex gap-10 text-sm font-bold text-muted-foreground">
-             <a href="#" className="hover:text-primary transition-colors">Confidentialité</a>
-             <a href="#" className="hover:text-primary transition-colors">Conditions</a>
-             <a href="mailto:hello@fereloo.com" className="hover:text-primary transition-colors">Contact</a>
-          </div>
-          <div className="text-xs font-semibold text-muted-foreground/60">
-             © {new Date().getFullYear()} Fereloo Inc. · Fait en Afrique
-          </div>
+      <footer className="mx-auto max-w-7xl px-6 py-20 border-t border-border flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
+        <div className="flex flex-col gap-6">
+           <div className="flex items-center gap-3">
+              <div className="h-5 w-5 bg-foreground flex items-center justify-center text-background rounded-[1px]">
+                 <Zap className="h-3 w-3" fill="currentColor" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-tighter">Fereloo</span>
+           </div>
+           <div className="text-[10px] font-medium text-muted-foreground leading-loose">
+              Solution de CRM SaaS isolée.<br/>
+              © {new Date().getFullYear()} Fereloo Inc.<br/>
+              Fait avec fierté en Afrique.
+           </div>
+        </div>
+
+        <div className="flex flex-wrap gap-x-12 gap-y-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+           <div className="flex flex-col gap-4">
+              <span className="text-foreground/30">Produit</span>
+              <a href="#" className="hover:text-foreground">Système</a>
+              <a href="#" className="hover:text-foreground">Tarifs</a>
+           </div>
+           <div className="flex flex-col gap-4">
+              <span className="text-foreground/30">Légal</span>
+              <a href="#" className="hover:text-foreground">Confidentialité</a>
+              <a href="#" className="hover:text-foreground">Conditions</a>
+           </div>
+           <div className="flex flex-col gap-4">
+              <span className="text-foreground/30">Contact</span>
+              <a href="mailto:hello@fereloo.com" className="hover:text-foreground">Email</a>
+              <a href="#" className="hover:text-foreground">LinkedIn</a>
+           </div>
         </div>
       </footer>
 

@@ -53,46 +53,49 @@
  *  text        #f5f5f5  /  muted #a1a1aa
  */
 :root {
-  --radius: 0.6rem;
+  --radius: 0.25rem;                      /* Tight radii for precision */
 
-  --background: oklch(0.99 0.005 295);    /* Warm white */
-  --foreground: oklch(0.20 0.02 295);     /* Deep charcoal violet */
+  --background: oklch(1 0 0);             /* Pure White */
+  --foreground: oklch(0.15 0 0);          /* Deep Black/Gray */
 
-  --card: oklch(1 0 0);                   /* Pure white card */
-  --card-foreground: oklch(0.20 0.02 295);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0 0);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0.02 295);
+  --popover-foreground: oklch(0.15 0 0);
 
-  --primary: oklch(0.55 0.22 295);        /* Professional Violet */
-  --primary-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.15 0 0);             /* Neutral primary (Black) */
+  --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.96 0.01 295);      /* Soft violet-gray */
-  --secondary-foreground: oklch(0.30 0.02 295);
+  --secondary: oklch(0.97 0 0);           /* Ghost gray */
+  --secondary-foreground: oklch(0.15 0 0);
 
-  --muted: oklch(0.96 0.01 295);
-  --muted-foreground: oklch(0.55 0.02 295);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.50 0 0);    /* Soft gray text */
 
-  --accent: oklch(0.93 0.03 295);
-  --accent-foreground: oklch(0.55 0.22 295);
+  --accent: oklch(0.15 0 0);
+  --accent-foreground: oklch(1 0 0);
 
-  --destructive: oklch(0.60 0.20 25);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.55 0.18 25);
+  --destructive-foreground: oklch(1 0 0);
 
-  --success: oklch(0.75 0.15 155);
-  --success-foreground: oklch(0.20 0.05 155);
+  --success: oklch(0.20 0.05 155);
+  --success-foreground: oklch(1 0 0);
 
   --warning: oklch(0.85 0.15 85);
-  --warning-foreground: oklch(0.25 0.05 85);
+  --warning-foreground: oklch(0.20 0.05 85);
 
-  --border: oklch(0.92 0.01 295);         /* Subtle borders */
-  --input: oklch(0.92 0.01 295);
-  --ring: oklch(0.55 0.22 295);
+  --border: oklch(0.90 0 0);              /* 1px precision borders */
+  --input: oklch(0.90 0 0);
+  --ring: oklch(0.15 0 0);
 }
 
-/* Force light theme even if system is dark */
-.dark, :root {
-  color-scheme: light;
+/* Ensure font defaults match the minimal technical look */
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
 }
 
 
