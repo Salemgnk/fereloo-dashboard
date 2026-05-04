@@ -46,6 +46,7 @@ const STEP_ICONS: Record<ProvisioningStepKey, React.ComponentType<{ className?: 
   mariadb: Database,
   redis: Server,
   app: Box,
+  booting: Activity,
   domain: Globe,
 };
 

@@ -121,7 +121,7 @@ function NoTenantState() {
           Prêt à démarrer ?
         </h2>
         <p className="mt-4 text-balance text-sm leading-relaxed text-muted-foreground font-medium">
-          Vous n'avez pas encore d'instance active. Déployez votre environnement de gestion en moins de 2 minutes.
+          Vous n'avez pas encore d'instance active. Déployez votre environnement de gestion en moins de 3 minutes.
         </p>
       </div>
 

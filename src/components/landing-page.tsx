@@ -25,7 +25,7 @@ const FEATURES = [
   },
   { 
     title: 'Vitesse Optimale', 
-    desc: 'Une puissance de calcul réservée uniquement à votre entreprise.',
+    desc: 'Votre CRM est prêt et configuré en moins de 3 minutes.',
     icon: Rocket 
   },
   { 
@@ -111,10 +111,10 @@ export function LandingPage() {
               >
                 Démarrer l'essai gratuit <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <div className="text-[11px] font-bold text-muted-foreground uppercase leading-tight tracking-wider">
-              ✓ Prêt en 90 secondes<br/>
-              ✓ Aucune carte requise
-            </div>
+                <div className="text-[11px] font-bold text-muted-foreground uppercase leading-tight tracking-wider">
+                ✓ Prêt en 3 minutes<br/>
+                ✓ Aucune carte requise
+              </div>
           </div>
         </div>
           
