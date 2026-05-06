@@ -175,6 +175,7 @@ export default defineConfig(({ command, mode }) => {
     server: {
       host: "::",
       port: 8080,
+      allowedHosts: ["dashboard.fereloo.com"],
     },
     preview: {
       allowedHosts: ["fereloo.com", "api.fereloo.com"],
