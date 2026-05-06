@@ -105,7 +105,7 @@ function ProvisionForm() {
     <div className="mx-auto max-w-3xl">
       <div className="mb-8">
         <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
-          <Link to="/dashboard">
+          <Link to="/">
             <ArrowLeft className="h-4 w-4" />
             Retour au tableau de bord
           </Link>

@@ -29,7 +29,7 @@ function Breadcrumbs() {
   const path = router.location.pathname;
 
   const crumbs: Array<{ label: string; href?: string }> = [
-    { label: 'ACCUEIL', href: '/dashboard' },
+    { label: 'ACCUEIL', href: '/' },
   ];
 
   if (path === '/provision') {
@@ -70,7 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
 
           <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm shadow-primary/20">
                 <Zap className="h-3.5 w-3.5" strokeWidth={2.5} />
               </span>
@@ -84,7 +84,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <nav className="hidden items-center gap-0.5 md:flex">
               <Link
-                to="/dashboard"
+                to="/"
                 className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 activeProps={{
                   className: 'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm bg-accent text-foreground',

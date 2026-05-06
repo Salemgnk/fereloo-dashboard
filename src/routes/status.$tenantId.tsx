@@ -109,7 +109,7 @@ function StatusView() {
           Cette instance n'existe pas ou a été supprimée.
         </p>
         <Button asChild className="mt-6">
-          <Link to="/dashboard">Retour au tableau de bord</Link>
+          <Link to="/">Retour au tableau de bord</Link>
         </Button>
       </Card>
     );
@@ -125,7 +125,7 @@ function StatusView() {
       {/* Header */}
       <div>
         <Button variant="ghost" size="sm" asChild className="-ml-2">
-          <Link to="/dashboard">
+          <Link to="/">
             <ArrowLeft className="h-4 w-4" />
             Retour au tableau de bord
           </Link>
