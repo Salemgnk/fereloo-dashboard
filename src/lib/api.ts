@@ -82,6 +82,11 @@ interface RawProvisioningStatus {
   steps: RawStep[];
 }
 
+// SSE stream payload — same as RawProvisioningStatus but includes the tenant object.
+interface RawStreamPayload extends RawProvisioningStatus {
+  tenant: RawTenant;
+}
+
 // ── Shape adapters ──────────────────────────────────────────────────────────
 
 function rawToTenant(r: RawTenant): Tenant {
@@ -191,46 +196,109 @@ function resolveGroupStatus(statuses: string[]): ProvisioningStepStatus {
   return 'pending';
 }
 
+function _buildTenantStatusResponse(
+  tenant: Tenant,
+  raw: Pick<RawProvisioningStatus, 'tenant_id' | 'status' | 'progress' | 'steps'>,
+): TenantStatusResponse {
+  const groupedStatuses = new Map<ProvisioningStepKey, string[]>();
+  for (const l of raw.steps) {
+    const key = STEP_GROUP[l.step];
+    if (key) {
+      const arr = groupedStatuses.get(key) ?? [];
+      arr.push(l.status);
+      groupedStatuses.set(key, arr);
+    }
+  }
+
+  const steps: ProvisioningStep[] = PROVISIONING_STEP_DEFS.map((def) => ({
+    ...def,
+    status: resolveGroupStatus(groupedStatuses.get(def.key as ProvisioningStepKey) ?? []),
+  }));
+
+  const logs: ProvisioningLog[] = raw.steps.map((l, i) => ({
+    id: `${raw.tenant_id}-${l.step}-${i}`,
+    timestamp: l.created_at ?? new Date().toISOString(),
+    level: mapLogLevel(l.status),
+    message: l.message ?? `[${l.step}] ${l.status}`,
+  }));
+
+  const errorMessage =
+    raw.status === 'failed'
+      ? 'Le déploiement a échoué — consultez les logs pour le détail.'
+      : undefined;
+
+  return { tenant, progress: raw.progress, steps, logs, errorMessage };
+}
+
 export async function getTenantStatus(tenantId: string): Promise<TenantStatusResponse | null> {
   try {
     const [tenant, statusData] = await Promise.all([
       getTenant(tenantId),
       apiGet<RawProvisioningStatus>(`/tenants/${tenantId}/status`),
     ]);
-
     if (!tenant) return null;
-
-    // Group granular backend steps by high-level frontend key.
-    const groupedStatuses = new Map<ProvisioningStepKey, string[]>();
-    for (const l of statusData.steps) {
-      const key = STEP_GROUP[l.step];
-      if (key) {
-        const arr = groupedStatuses.get(key) ?? [];
-        arr.push(l.status);
-        groupedStatuses.set(key, arr);
-      }
-    }
-
-    const steps: ProvisioningStep[] = PROVISIONING_STEP_DEFS.map((def) => ({
-      ...def,
-      status: resolveGroupStatus(groupedStatuses.get(def.key as ProvisioningStepKey) ?? []),
-    }));
-
-    // Each backend step row becomes a log entry.
-    const logs: ProvisioningLog[] = statusData.steps.map((l, i) => ({
-      id: `${tenantId}-${l.step}-${i}`,
-      timestamp: l.created_at ?? new Date().toISOString(),
-      level: mapLogLevel(l.status),
-      message: l.message ?? `[${l.step}] ${l.status}`,
-    }));
-
-    const errorMessage =
-      statusData.status === 'failed'
-        ? 'Le déploiement a échoué — consultez les logs pour le détail.'
-        : undefined;
-
-    return { tenant, progress: statusData.progress, steps, logs, errorMessage };
+    return _buildTenantStatusResponse(tenant, statusData);
   } catch {
     return null;
   }
+}
+
+/**
+ * Opens an SSE stream to the backend and pushes parsed TenantStatusResponse snapshots.
+ * Uses fetch (not EventSource) so the Clerk JWT can be sent as a header.
+ * Returns a cleanup function — call it to abort the stream.
+ */
+export function streamTenantStatus(
+  tenantId: string,
+  onData: (data: TenantStatusResponse) => void,
+  onError: () => void,
+): () => void {
+  let cancelled = false;
+  let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+
+  async function connect() {
+    const token = await _token();
+    let res: Response;
+    try {
+      res = await fetch(`${API_BASE}/tenants/${tenantId}/stream`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    } catch {
+      if (!cancelled) onError();
+      return;
+    }
+
+    if (!res.ok || !res.body) {
+      if (!cancelled) onError();
+      return;
+    }
+
+    reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (!cancelled) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const raw = JSON.parse(line.slice(6)) as RawStreamPayload;
+          if (!cancelled) onData(_buildTenantStatusResponse(rawToTenant(raw.tenant), raw));
+        } catch {
+          // malformed SSE frame — ignore
+        }
+      }
+    }
+  }
+
+  connect().catch(() => { if (!cancelled) onError(); });
+
+  return () => {
+    cancelled = true;
+    reader?.cancel();
+  };
 }

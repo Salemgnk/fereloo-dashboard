@@ -1,6 +1,5 @@
 import { createFileRoute, useRouter, Link } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -21,12 +20,13 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StatusBadge } from '@/components/status-badge';
 import { useAuth } from '@/lib/use-auth';
-import { getTenantStatus } from '@/lib/api';
+import { streamTenantStatus } from '@/lib/api';
 import type {
   ProvisioningLog,
   ProvisioningStep,
   ProvisioningStepKey,
   ProvisioningStepStatus,
+  TenantStatusResponse,
 } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -74,20 +74,26 @@ function StatusPage() {
   );
 }
 
+function useTenantStatusStream(tenantId: string) {
+  const [data, setData] = useState<TenantStatusResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    const cleanup = streamTenantStatus(
+      tenantId,
+      (d) => { setData(d); setIsLoading(false); setIsError(false); },
+      () => { setIsError(true); setIsLoading(false); },
+    );
+    return cleanup;
+  }, [tenantId]);
+
+  return { data, isLoading, isError };
+}
+
 function StatusView() {
   const { tenantId } = Route.useParams();
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['tenant-status', tenantId],
-    queryFn: () => getTenantStatus(tenantId),
-    refetchInterval: (q) => {
-      const d = q.state.data;
-      if (!d) return 3000;
-      if (d.tenant.status === 'provisioning') return 3000;
-      return false;
-    },
-    refetchIntervalInBackground: false,
-  });
+  const { data, isLoading, isError } = useTenantStatusStream(tenantId);
 
   if (isLoading) {
     return (
