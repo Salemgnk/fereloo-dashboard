@@ -178,7 +178,7 @@ export default defineConfig(({ command, mode }) => {
       allowedHosts: ["dashboard.fereloo.com"],
     },
     preview: {
-      allowedHosts: ["fereloo.com", "api.fereloo.com"],
+      allowedHosts: ["fereloo.com", "api.fereloo.com", "dashboard.fereloo.com"],
     },
     define: envDefine,
     resolve: {
