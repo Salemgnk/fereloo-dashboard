@@ -63,27 +63,31 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-black selection:text-white">
-      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-          <div className="flex items-center gap-6">
-            <Link to="/dashboard" className="flex items-center gap-3 group">
-              <span className="flex h-6 w-6 items-center justify-center rounded-[2px] bg-foreground text-background transition-transform group-hover:scale-105">
-                <Zap className="h-4 w-4" fill="currentColor" />
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
+
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard" className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm shadow-primary/20">
+                <Zap className="h-3.5 w-3.5" strokeWidth={2.5} />
               </span>
-              <span className="text-xs font-bold uppercase tracking-tighter">Fereloo</span>
+              <span className="font-display font-bold tracking-tight">Fereloo</span>
+              <span className="hidden rounded border border-border bg-secondary px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground sm:inline">
+                console
+              </span>
             </Link>
 
             <div className="hidden h-4 w-px bg-border md:block" aria-hidden />
 
-            <nav className="hidden items-center gap-1 md:flex">
+            <nav className="hidden items-center gap-0.5 md:flex">
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-[2px] px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 activeProps={{
-                  className:
-                    'inline-flex items-center gap-2 rounded-[2px] px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-secondary text-foreground',
+                  className: 'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm bg-accent text-foreground',
                 }}
               >
                 <LayoutDashboard className="h-3.5 w-3.5" />
@@ -94,27 +98,26 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Breadcrumbs />
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
               onClick={() => navigate({ to: '/provision' })}
-              className="hidden h-9 px-4 rounded-[2px] font-bold text-[10px] uppercase tracking-widest border-border hover:border-foreground transition-all sm:inline-flex"
+              className="hidden h-8 gap-1.5 text-xs sm:inline-flex"
             >
-              <Plus className="h-3.5 w-3.5 mr-2" />
+              <Plus className="h-3.5 w-3.5" />
               Nouvelle instance
             </Button>
 
             {user && (
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-px bg-border mx-2 hidden md:block" />
+              <div className="flex items-center gap-1">
                 <UserAvatar name={user.name} email={user.email} />
                 <Button
                   size="icon"
                   variant="ghost"
                   onClick={signOut}
                   aria-label="Déconnexion"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                 </Button>
@@ -125,7 +128,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-6 py-12 md:py-16">
+      <main className="mx-auto max-w-7xl px-4 py-8 md:px-6">
         {children}
       </main>
     </div>

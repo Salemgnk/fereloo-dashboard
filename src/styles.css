@@ -53,41 +53,41 @@
  *  text        #f5f5f5  /  muted #a1a1aa
  */
 :root {
-  --radius: 0.25rem;                      /* Tight radii for precision */
+  --radius: 0.5rem;
 
-  --background: oklch(1 0 0);             /* Pure White */
-  --foreground: oklch(0.15 0 0);          /* Deep Black/Gray */
+  --background: oklch(0.17 0 0);
+  --foreground: oklch(0.97 0 0);
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
+  --card: oklch(0.22 0 0);
+  --card-foreground: oklch(0.97 0 0);
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
+  --popover: oklch(0.22 0 0);
+  --popover-foreground: oklch(0.97 0 0);
 
-  --primary: oklch(0.15 0 0);             /* Neutral primary (Black) */
-  --primary-foreground: oklch(1 0 0);
+  --primary: oklch(0.55 0.22 295);        /* violet ~#7c3aed */
+  --primary-foreground: oklch(0.99 0 0);
 
-  --secondary: oklch(0.97 0 0);           /* Ghost gray */
-  --secondary-foreground: oklch(0.15 0 0);
+  --secondary: oklch(0.26 0 0);
+  --secondary-foreground: oklch(0.97 0 0);
 
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.50 0 0);    /* Soft gray text */
+  --muted: oklch(0.24 0 0);
+  --muted-foreground: oklch(0.68 0 0);
 
-  --accent: oklch(0.15 0 0);
-  --accent-foreground: oklch(1 0 0);
+  --accent: oklch(0.27 0.01 295);
+  --accent-foreground: oklch(0.97 0 0);
 
-  --destructive: oklch(0.55 0.18 25);
-  --destructive-foreground: oklch(1 0 0);
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
 
-  --success: oklch(0.20 0.05 155);
-  --success-foreground: oklch(1 0 0);
+  --success: oklch(0.72 0.17 155);
+  --success-foreground: oklch(0.17 0 0);
 
-  --warning: oklch(0.85 0.15 85);
-  --warning-foreground: oklch(0.20 0.05 85);
+  --warning: oklch(0.82 0.15 85);
+  --warning-foreground: oklch(0.17 0 0);
 
-  --border: oklch(0.90 0 0);              /* 1px precision borders */
-  --input: oklch(0.90 0 0);
-  --ring: oklch(0.15 0 0);
+  --border: oklch(0.30 0 0);
+  --input: oklch(0.26 0 0);
+  --ring: oklch(0.55 0.22 295);
 }
 
 /* Ensure font defaults match the minimal technical look */
