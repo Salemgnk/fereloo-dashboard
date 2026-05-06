@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import {
@@ -42,13 +42,12 @@ export const Route = createFileRoute('/dashboard')({
 });
 
 function DashboardPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+  const { user, loading, signIn } = useAuth();
   const { companyInfo, checklistDismissed, saveCompanyInfo, dismissChecklist } = useOnboarding(user?.id);
 
   useEffect(() => {
-    if (!loading && !user) router.navigate({ to: '/' });
-  }, [user, loading, router]);
+    if (!loading && !user) signIn();
+  }, [user, loading, signIn]);
 
   const { data: currentTenant, isLoading: loadingCurrent } = useQuery({
     queryKey: ['current-tenant'],

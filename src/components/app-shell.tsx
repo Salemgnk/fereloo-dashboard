@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
 
           <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-3 group">
+            <Link to="/dashboard" className="flex items-center gap-3 group">
               <span className="flex h-6 w-6 items-center justify-center rounded-[2px] bg-foreground text-background transition-transform group-hover:scale-105">
                 <Zap className="h-4 w-4" fill="currentColor" />
               </span>
