@@ -155,7 +155,7 @@ function StatusView() {
           </div>
           {isReady && (
             <Button asChild className="glow-primary shrink-0">
-              <a href={tenant.url} target="_blank" rel="noopener noreferrer">
+              <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4" />
                 Ouvrir Frappe CRM
               </a>

@@ -356,7 +356,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
                   </Link>
                 </Button>
                 <Button asChild size="sm" className="h-9 px-6 rounded-[2px] font-bold text-[10px] uppercase tracking-widest">
-                  <a href={tenant.url} target="_blank" rel="noopener noreferrer">
+                  <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-3.5 w-3.5 mr-2" />
                     Ouvrir le CRM
                   </a>
@@ -455,7 +455,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
         </Button>
         {tenant.status === 'active' && (
           <Button asChild size="sm" variant="outline" className="h-8 px-4 rounded-[2px] font-bold text-[9px] uppercase tracking-widest border-border hover:bg-foreground hover:text-background">
-            <a href={tenant.url} target="_blank" rel="noopener noreferrer">
+            <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
               Accès
             </a>
           </Button>
