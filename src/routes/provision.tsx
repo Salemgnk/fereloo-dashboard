@@ -26,10 +26,10 @@ import { cn } from '@/lib/utils';
 export const Route = createFileRoute('/provision')({
   head: () => ({
     meta: [
-      { title: 'Provisionner une instance — Fereloo' },
+      { title: 'Créer votre CRM Fereloo' },
       {
         name: 'description',
-        content: "Lancez le provisioning d'une instance Frappe CRM dédiée : sous-domaine, plan, déploiement automatique.",
+        content: "Créez votre CRM Fereloo en quelques minutes : choisissez votre adresse et votre formule.",
       },
     ],
   }),
@@ -111,10 +111,10 @@ function ProvisionForm() {
           </Link>
         </Button>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          Nouvelle instance Frappe CRM
+          Créer votre CRM Fereloo
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Choisissez un sous-domaine et un plan. Le déploiement démarre immédiatement.
+          Choisissez votre adresse et votre formule. Votre CRM est prêt en quelques minutes.
         </p>
       </div>
 
@@ -127,13 +127,13 @@ function ProvisionForm() {
               <Globe className="h-3.5 w-3.5" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold">Sous-domaine</h2>
-              <p className="font-mono text-[10px] text-muted-foreground">Adresse de votre instance</p>
+              <h2 className="text-sm font-semibold">Adresse de votre CRM</h2>
+              <p className="font-mono text-[10px] text-muted-foreground">L'URL de votre espace Fereloo</p>
             </div>
           </div>
 
           <Label htmlFor="subdomain" className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-            Sous-domaine
+            Nom de votre espace
           </Label>
           <div className="flex items-stretch overflow-hidden rounded-lg border border-input bg-background shadow-sm focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
             <Input
@@ -182,8 +182,8 @@ function ProvisionForm() {
               🔑
             </div>
             <div>
-              <h2 className="text-sm font-semibold">Mot de passe administrateur</h2>
-              <p className="font-mono text-[10px] text-muted-foreground">Compte admin Frappe CRM</p>
+              <h2 className="text-sm font-semibold">Mot de passe de connexion</h2>
+              <p className="font-mono text-[10px] text-muted-foreground">Pour accéder à votre CRM Fereloo</p>
             </div>
           </div>
 
@@ -236,7 +236,7 @@ function ProvisionForm() {
           )}
 
           <p className="font-mono text-[11px] text-muted-foreground/70">
-            Ce mot de passe sera celui du compte admin de votre instance Frappe CRM.
+            Ce mot de passe vous permettra de vous connecter à votre CRM Fereloo.
           </p>
         </div>
 
@@ -318,7 +318,7 @@ function ProvisionForm() {
           <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium">Échec du provisioning</p>
+              <p className="font-medium">La création de votre CRM a échoué</p>
               <p className="mt-0.5 text-destructive/80">
                 {provision.error instanceof Error ? provision.error.message : 'Réessayez dans quelques instants.'}
               </p>
@@ -333,7 +333,7 @@ function ProvisionForm() {
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>
-                  Prêt à déployer{' '}
+                  Votre CRM sera accessible sur{' '}
                   <span className="font-mono font-medium">{subdomain}.fereloo.com</span>
                   {' '}— {selectedPlan.name}
                 </span>
@@ -353,12 +353,12 @@ function ProvisionForm() {
             {provision.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Démarrage en cours…
+                Création en cours…
               </>
             ) : (
               <>
                 <Rocket className="h-4 w-4" />
-                Lancer le déploiement
+                Confirmer et créer votre CRM Fereloo
               </>
             )}
           </Button>
