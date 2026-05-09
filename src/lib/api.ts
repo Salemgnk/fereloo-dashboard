@@ -151,11 +151,13 @@ export async function provisionTenant(input: {
   subdomain: string;
   plan: PlanId;
   region?: string;
+  adminPassword: string;
 }): Promise<Tenant> {
   const raw = await apiPost<RawProvisioningStatus>('/tenants/provision', {
     subdomain: input.subdomain,
     plan_id: input.plan,
     region: input.region ?? 'af-west-1',
+    admin_password: input.adminPassword,
   });
   // The provision endpoint returns a ProvisioningStatusResponse; reconstruct a minimal Tenant.
   return {

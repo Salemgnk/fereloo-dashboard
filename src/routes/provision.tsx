@@ -8,6 +8,8 @@ import {
   Rocket,
   Sparkles,
   Globe,
+  Eye,
+  EyeOff,
   CheckCircle2,
   XCircle,
   Clock,
@@ -66,6 +68,8 @@ function ProvisionForm() {
   const queryClient = useQueryClient();
   const [subdomain, setSubdomain] = useState('');
   const [plan, setPlan] = useState<PlanId>('pro');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [check, setCheck] = useState<SubdomainCheck>('idle');
 
   useEffect(() => {
@@ -86,7 +90,7 @@ function ProvisionForm() {
   }, [subdomain]);
 
   const provision = useMutation({
-    mutationFn: () => provisionTenant({ subdomain, plan }),
+    mutationFn: () => provisionTenant({ subdomain, plan, adminPassword }),
     onSuccess: (tenant) => {
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
       queryClient.invalidateQueries({ queryKey: ['current-tenant'] });
@@ -94,7 +98,7 @@ function ProvisionForm() {
     },
   });
 
-  const canSubmit = check === 'available' && !provision.isPending;
+  const canSubmit = check === 'available' && adminPassword.length >= 8 && !provision.isPending;
   const selectedPlan = PLANS.find((p) => p.id === plan)!;
 
   return (
@@ -168,6 +172,71 @@ function ProvisionForm() {
 
           <p className="font-mono text-[11px] text-muted-foreground/70">
             Lettres minuscules, chiffres, tirets uniquement · 3 à 30 caractères
+          </p>
+        </div>
+
+        {/* ── Password ── */}
+        <div className="rounded-xl border border-border bg-card/60 p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary font-mono text-xs font-bold">
+              🔑
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold">Mot de passe administrateur</h2>
+              <p className="font-mono text-[10px] text-muted-foreground">Compte admin Frappe CRM</p>
+            </div>
+          </div>
+
+          <Label htmlFor="admin-password" className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            Mot de passe
+          </Label>
+          <div className="relative">
+            <Input
+              id="admin-password"
+              type={showPassword ? 'text' : 'password'}
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="Min. 8 caractères"
+              className="h-11 pr-10 font-mono"
+              disabled={provision.isPending}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+
+          {adminPassword.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="flex gap-1">
+                {[8, 12, 16].map((threshold) => (
+                  <div
+                    key={threshold}
+                    className={cn(
+                      'h-1 flex-1 rounded-full transition-colors',
+                      adminPassword.length >= threshold ? 'bg-success' : 'bg-border',
+                    )}
+                  />
+                ))}
+              </div>
+              <p className="font-mono text-[10px] text-muted-foreground">
+                {adminPassword.length < 8
+                  ? 'Trop court'
+                  : adminPassword.length < 12
+                  ? 'Acceptable'
+                  : adminPassword.length < 16
+                  ? 'Bon'
+                  : 'Fort'}
+              </p>
+            </div>
+          )}
+
+          <p className="font-mono text-[11px] text-muted-foreground/70">
+            Ce mot de passe sera celui du compte admin de votre instance Frappe CRM.
           </p>
         </div>
 
@@ -260,7 +329,7 @@ function ProvisionForm() {
         {/* Summary + submit */}
         <div className="flex flex-col gap-4 rounded-xl border border-border bg-card/40 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-muted-foreground">
-            {check === 'available' ? (
+            {check === 'available' && adminPassword.length >= 8 ? (
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>
