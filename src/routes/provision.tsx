@@ -2,10 +2,8 @@ import { createFileRoute, useNavigate, useRouter, Link } from '@tanstack/react-r
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  AlertTriangle,
   ArrowLeft,
   Check,
-  ChevronRight,
   Loader2,
   Rocket,
   Sparkles,
@@ -19,7 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/lib/use-auth';
-import { useOnboarding } from '@/lib/use-onboarding';
 import { checkSubdomainAvailable, provisionTenant } from '@/lib/api';
 import { PLANS, type PlanId } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -41,20 +38,9 @@ const SUBDOMAIN_REGEX = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
 
 type SubdomainCheck = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
-function toSubdomain(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 30);
-}
-
 function ProvisionPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { companyInfo } = useOnboarding(user?.id);
 
   useEffect(() => {
     if (!loading && !user) router.navigate({ to: '/' });
@@ -70,24 +56,27 @@ function ProvisionPage() {
 
   return (
     <AppShell>
-      <ProvisionForm companyName={companyInfo?.name} />
+      <ProvisionForm />
     </AppShell>
   );
 }
 
-function ProvisionForm({ companyName }: { companyName?: string }) {
+function ProvisionForm() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [subdomain, setSubdomain] = useState(() =>
-    companyName ? toSubdomain(companyName) : '',
-  );
+  const [subdomain, setSubdomain] = useState('');
   const [plan, setPlan] = useState<PlanId>('pro');
   const [check, setCheck] = useState<SubdomainCheck>('idle');
-  const [step, setStep] = useState<'form' | 'confirm'>('form');
 
   useEffect(() => {
-    if (!subdomain) { setCheck('idle'); return; }
-    if (!SUBDOMAIN_REGEX.test(subdomain)) { setCheck('invalid'); return; }
+    if (!subdomain) {
+      setCheck('idle');
+      return;
+    }
+    if (!SUBDOMAIN_REGEX.test(subdomain)) {
+      setCheck('invalid');
+      return;
+    }
     setCheck('checking');
     const t = setTimeout(async () => {
       const ok = await checkSubdomainAvailable(subdomain);
@@ -105,91 +94,14 @@ function ProvisionForm({ companyName }: { companyName?: string }) {
     },
   });
 
+  const canSubmit = check === 'available' && !provision.isPending;
   const selectedPlan = PLANS.find((p) => p.id === plan)!;
-  const canProceed = check === 'available' && !provision.isPending;
-
-  // ── Confirmation step ────────────────────────────────────────────────────
-
-  if (step === 'confirm') {
-    return (
-      <div className="mx-auto max-w-xl">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setStep('form')}
-          className="-ml-2 mb-8"
-          disabled={provision.isPending}
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Modifier
-        </Button>
-
-        <div className="space-y-5">
-          {/* Domain display */}
-          <div className="rounded-xl border border-border bg-card/60 p-8 text-center space-y-2">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Votre instance</p>
-            <p className="font-display text-2xl font-bold tracking-tight break-all">
-              <span className="text-primary">{subdomain}</span>
-              <span className="text-muted-foreground/50">.fereloo.com</span>
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Plan <span className="font-semibold">{selectedPlan.name}</span>
-              {' · '}
-              {selectedPlan.priceFcfa.toLocaleString('fr-FR')} FCFA/mois
-            </p>
-          </div>
-
-          {/* Warning */}
-          <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3.5">
-            <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-            <p className="text-sm text-warning/90 leading-relaxed">
-              Le sous-domaine <span className="font-mono font-semibold">{subdomain}.fereloo.com</span> est <strong>permanent</strong>.
-              Il ne pourra pas être modifié après le déploiement.
-            </p>
-          </div>
-
-          {/* Error */}
-          {provision.isError && (
-            <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
-              <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Échec du provisioning</p>
-                <p className="mt-0.5 text-destructive/80">
-                  {provision.error instanceof Error ? provision.error.message : 'Réessayez dans quelques instants.'}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={() => provision.mutate()}
-            disabled={provision.isPending}
-            className="glow-primary w-full h-11"
-          >
-            {provision.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Démarrage en cours…
-              </>
-            ) : (
-              <>
-                <Rocket className="h-4 w-4" />
-                Confirmer et déployer
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Form step ────────────────────────────────────────────────────────────
 
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-8">
         <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
-          <Link to="/">
+          <Link to="/dashboard">
             <ArrowLeft className="h-4 w-4" />
             Retour au tableau de bord
           </Link>
@@ -212,7 +124,7 @@ function ProvisionForm({ companyName }: { companyName?: string }) {
             </div>
             <div>
               <h2 className="text-sm font-semibold">Sous-domaine</h2>
-              <p className="font-mono text-[10px] text-muted-foreground">Adresse permanente de votre instance</p>
+              <p className="font-mono text-[10px] text-muted-foreground">Adresse de votre instance</p>
             </div>
           </div>
 
@@ -235,8 +147,10 @@ function ProvisionForm({ companyName }: { companyName?: string }) {
             </div>
           </div>
 
+          {/* Status message */}
           <SubdomainStatus state={check} />
 
+          {/* Live URL preview */}
           {subdomain && check !== 'invalid' && (
             <div className="flex items-center gap-2 rounded-md bg-secondary/40 px-3 py-2 font-mono text-xs text-muted-foreground">
               <Globe className="h-3 w-3 shrink-0" />
@@ -245,7 +159,7 @@ function ProvisionForm({ companyName }: { companyName?: string }) {
                 <span className={cn(
                   check === 'available' ? 'text-success' : check === 'taken' ? 'text-destructive' : 'text-foreground'
                 )}>
-                  {subdomain}
+                  {subdomain || 'votre-nom'}
                 </span>
                 .fereloo.com
               </span>
@@ -269,6 +183,9 @@ function ProvisionForm({ companyName }: { companyName?: string }) {
             </div>
           </div>
 
+          <Label className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            Plan
+          </Label>
           <div className="grid gap-3 md:grid-cols-3">
             {PLANS.map((p) => {
               const selected = plan === p.id;
@@ -291,6 +208,7 @@ function ProvisionForm({ companyName }: { companyName?: string }) {
                       Populaire
                     </span>
                   )}
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold">{p.name}</span>
                     <div className={cn(
@@ -300,15 +218,18 @@ function ProvisionForm({ companyName }: { companyName?: string }) {
                       {selected && <Check className="h-3 w-3" strokeWidth={3} />}
                     </div>
                   </div>
+
                   <div className="mt-3 flex items-baseline gap-1">
                     <span className="font-display text-2xl font-bold">
                       {p.priceFcfa.toLocaleString('fr-FR')}
                     </span>
                     <span className="text-xs text-muted-foreground">FCFA{p.period}</span>
                   </div>
+
                   <div className="mt-2 font-mono text-[11px] text-muted-foreground">
                     {p.users} utilisateurs · {p.storageGb} Go
                   </div>
+
                   <ul className="mt-4 space-y-1.5 text-xs text-muted-foreground">
                     {p.features.slice(0, 3).map((f) => (
                       <li key={f} className="flex items-start gap-1.5">
@@ -323,32 +244,54 @@ function ProvisionForm({ companyName }: { companyName?: string }) {
           </div>
         </div>
 
-        {/* ── Summary + proceed ── */}
+        {/* Error */}
+        {provision.isError && (
+          <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium">Échec du provisioning</p>
+              <p className="mt-0.5 text-destructive/80">
+                {provision.error instanceof Error ? provision.error.message : 'Réessayez dans quelques instants.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Summary + submit */}
         <div className="flex flex-col gap-4 rounded-xl border border-border bg-card/40 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-muted-foreground">
-            {canProceed ? (
+            {check === 'available' ? (
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>
-                  Prêt —{' '}
+                  Prêt à déployer{' '}
                   <span className="font-mono font-medium">{subdomain}.fereloo.com</span>
-                  {' · '}{selectedPlan.name}
+                  {' '}— {selectedPlan.name}
                 </span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                <span>Choisissez un sous-domaine disponible pour continuer</span>
+                <span>Remplissez les champs ci-dessus pour continuer</span>
               </div>
             )}
           </div>
           <Button
-            onClick={() => setStep('confirm')}
-            disabled={!canProceed}
+            onClick={() => provision.mutate()}
+            disabled={!canSubmit}
             className="glow-primary shrink-0"
           >
-            Continuer
-            <ChevronRight className="h-4 w-4" />
+            {provision.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Démarrage en cours…
+              </>
+            ) : (
+              <>
+                <Rocket className="h-4 w-4" />
+                Lancer le déploiement
+              </>
+            )}
           </Button>
         </div>
 
