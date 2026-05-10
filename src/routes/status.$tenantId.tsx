@@ -12,7 +12,6 @@ import {
   Box,
   Globe,
   RefreshCw,
-  Activity,
 } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
@@ -47,7 +46,6 @@ const STEP_ICONS: Record<ProvisioningStepKey, React.ComponentType<{ className?: 
   mariadb: Database,
   redis: Server,
   app: Box,
-  booting: Activity,
   domain: Globe,
 };
 
@@ -115,7 +113,7 @@ function StatusView() {
           Cette instance n'existe pas ou a été supprimée.
         </p>
         <Button asChild className="mt-6">
-          <Link to="/">Retour au tableau de bord</Link>
+          <Link to="/dashboard">Retour au tableau de bord</Link>
         </Button>
       </Card>
     );
@@ -131,7 +129,7 @@ function StatusView() {
       {/* Header */}
       <div>
         <Button variant="ghost" size="sm" asChild className="-ml-2">
-          <Link to="/">
+          <Link to="/dashboard">
             <ArrowLeft className="h-4 w-4" />
             Retour au tableau de bord
           </Link>
@@ -155,9 +153,9 @@ function StatusView() {
           </div>
           {isReady && (
             <Button asChild className="glow-primary shrink-0">
-              <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
+              <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4" />
-                Ouvrir Frappe CRM
+                Ouvrir votre CRM Fereloo
               </a>
             </Button>
           )}

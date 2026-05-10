@@ -1,8 +1,8 @@
 export type TenantStatus = 'provisioning' | 'active' | 'failed' | 'suspended';
 export type PlanId = 'basic' | 'pro' | 'enterprise';
 
-/** The 5 fixed Frappe CRM provisioning steps. */
-export type ProvisioningStepKey = 'mariadb' | 'redis' | 'app' | 'booting' | 'domain';
+/** The 4 fixed Frappe CRM provisioning steps. */
+export type ProvisioningStepKey = 'mariadb' | 'redis' | 'app' | 'domain';
 export type ProvisioningStepStatus = 'pending' | 'running' | 'success' | 'failed';
 
 export interface ProvisioningStep {
@@ -30,6 +30,7 @@ export interface Tenant {
   plan: PlanId;
   createdAt: string;
   url: string;
+  wizardUrl?: string;
   region: string;
 }
 
@@ -49,11 +50,10 @@ export interface TenantStatusResponse {
 }
 
 export const PROVISIONING_STEP_DEFS: Array<Pick<ProvisioningStep, 'key' | 'label' | 'description'>> = [
-  { key: 'mariadb', label: 'Base de données', description: 'Stockage dédié.' },
-  { key: 'redis', label: 'Serveur Cache', description: 'Accélération système.' },
-  { key: 'app', label: 'Installation', description: 'Mise en place du CRM.' },
-  { key: 'booting', label: 'Démarrage', description: 'Initialisation finale (2-3 min).' },
-  { key: 'domain', label: 'Accès Web', description: 'Nom de domaine et SSL.' },
+  { key: 'mariadb', label: 'MariaDB', description: 'Base de données dédiée à votre instance.' },
+  { key: 'redis', label: 'Redis', description: 'Cache & file de jobs en arrière-plan.' },
+  { key: 'app', label: 'Frappe CRM', description: 'Conteneur applicatif et migrations initiales.' },
+  { key: 'domain', label: 'Domaine TLS', description: 'Sous-domaine + certificat Let\'s Encrypt.' },
 ];
 
 export const PLANS: Plan[] = [
