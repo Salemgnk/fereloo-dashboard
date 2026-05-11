@@ -1,7 +1,7 @@
 export type TenantStatus = 'provisioning' | 'active' | 'failed' | 'suspended';
 export type PlanId = 'basic' | 'pro' | 'enterprise';
 
-/** The 4 fixed Frappe CRM provisioning steps. */
+/** The 4 fixed Fereloo CRM provisioning steps. */
 export type ProvisioningStepKey = 'mariadb' | 'redis' | 'app' | 'domain';
 export type ProvisioningStepStatus = 'pending' | 'running' | 'success' | 'failed';
 
@@ -52,7 +52,7 @@ export interface TenantStatusResponse {
 export const PROVISIONING_STEP_DEFS: Array<Pick<ProvisioningStep, 'key' | 'label' | 'description'>> = [
   { key: 'mariadb', label: 'MariaDB', description: 'Base de données dédiée à votre instance.' },
   { key: 'redis', label: 'Redis', description: 'Cache & file de jobs en arrière-plan.' },
-  { key: 'app', label: 'Frappe CRM', description: 'Conteneur applicatif et migrations initiales.' },
+  { key: 'app', label: 'Fereloo CRM', description: 'Conteneur applicatif et migrations initiales.' },
   { key: 'domain', label: 'Domaine TLS', description: 'Sous-domaine + certificat Let\'s Encrypt.' },
 ];
 

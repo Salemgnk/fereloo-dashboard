@@ -35,7 +35,7 @@ export const Route = createFileRoute('/status/$tenantId')({
       { title: 'Statut du déploiement — Fereloo' },
       {
         name: 'description',
-        content: 'Suivi en temps réel du provisioning de votre instance Frappe CRM.',
+        content: 'Suivi en temps réel du provisioning de votre instance Fereloo CRM.',
       },
     ],
   }),

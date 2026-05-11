@@ -34,7 +34,7 @@ export const Route = createFileRoute('/dashboard')({
       { title: 'Tableau de bord — Fereloo' },
       {
         name: 'description',
-        content: 'Vos instances Frappe CRM provisionnées sur Fereloo : statut, plan et accès direct.',
+        content: 'Vos instances Fereloo CRM provisionnées sur Fereloo : statut, plan et accès direct.',
       },
     ],
   }),
@@ -152,7 +152,7 @@ function NoTenantState() {
           Bienvenue sur Fereloo
         </div>
         <h2 className="mt-4 font-display text-2xl font-bold tracking-tight md:text-3xl">
-          Provisionnez votre instance Frappe CRM
+          Provisionnez votre instance Fereloo CRM
         </h2>
         <p className="mt-3 text-balance text-sm leading-relaxed text-muted-foreground">
           Vous n'avez pas encore d'instance. Choisissez un plan et un sous-domaine — votre CRM

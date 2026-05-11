@@ -39,7 +39,7 @@ export function OnboardingChecklist({ companyDone, tenants, onDismiss }: Props) 
     {
       id: 'instance',
       label: 'Déployer une instance CRM',
-      description: 'Lancer votre environnement Frappe CRM.',
+      description: 'Lancer votre environnement Fereloo CRM.',
       done: hasInstance,
       action: !hasInstance ? { label: 'Déployer', href: '/provision' } : undefined,
     },

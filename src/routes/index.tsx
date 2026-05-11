@@ -34,7 +34,7 @@ export const Route = createFileRoute('/')({
       { title: 'Tableau de bord — Fereloo' },
       {
         name: 'description',
-        content: 'Vos instances Frappe CRM provisionnées sur Fereloo : statut, plan et accès direct.',
+        content: 'Vos instances Fereloo CRM provisionnées sur Fereloo : statut, plan et accès direct.',
       },
     ],
   }),
