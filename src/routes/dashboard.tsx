@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import {
   Plus,
   ExternalLink,
@@ -14,8 +14,9 @@ import {
   HardDrive,
   MapPin,
   Layers,
+  Trash2,
 } from 'lucide-react';
-import { getCurrentTenant, listTenants, watchTenants } from '@/lib/api';
+import { getCurrentTenant, listTenants, watchTenants, deleteTenant } from '@/lib/api';
 import { useAuth } from '@/lib/use-auth';
 import { useOnboarding } from '@/lib/use-onboarding';
 import { AppShell } from '@/components/app-shell';
@@ -324,6 +325,24 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
   const isActive = tenant.status === 'active';
   const isProv = tenant.status === 'provisioning';
   const isFailed = tenant.status === 'failed';
+  const queryClient = useQueryClient();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteTenant(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tenants'] });
+      queryClient.invalidateQueries({ queryKey: ['current-tenant'] });
+    },
+    onSettled: () => setIsDeleting(false),
+  });
+
+  const handleDelete = () => {
+    if (window.confirm('Voulez-vous vraiment supprimer cette instance ? Toutes les données seront perdues.')) {
+      setIsDeleting(true);
+      deleteMutation.mutate(tenant.id);
+    }
+  };
 
   const statusBorderColor = {
     active: 'from-success/60 via-success/40 to-success/10',
@@ -357,6 +376,16 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="h-9 w-9 p-0 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
+              title="Supprimer l'instance"
+            >
+              {isDeleting ? <Activity className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+            </Button>
             {(isProv || isFailed) && (
               <Button asChild variant="outline" size="sm">
                 <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
