@@ -185,7 +185,7 @@ const STEP_GROUP: Record<string, ProvisioningStepKey> = {
   app_update: 'app',
   app_save_env: 'app',
   app_deploy: 'app',
-  app_booting: 'booting',
+  app_booting: 'app',
   domain_create: 'domain',
 };
 
@@ -241,6 +241,73 @@ export async function getTenantStatus(tenantId: string): Promise<TenantStatusRes
   } catch {
     return null;
   }
+}
+
+/**
+ * Opens a WebSocket to /ws/tenants and pushes parsed Tenant[] snapshots.
+ * The token is passed as a query param (browser WS API has no custom header support).
+ * Auto-reconnects on unexpected disconnections. Returns a cleanup function.
+ */
+export function watchTenants(
+  onData: (tenants: Tenant[]) => void,
+  onError: () => void,
+): () => void {
+  let ws: WebSocket | null = null;
+  let cancelled = false;
+  let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  async function connect() {
+    if (cancelled) return;
+    const token = await _token();
+    if (!token || cancelled) {
+      onError();
+      return;
+    }
+
+    const wsBase = API_BASE.replace(/^http/, 'ws');
+    try {
+      ws = new WebSocket(`${wsBase}/ws/tenants?token=${encodeURIComponent(token)}`);
+    } catch {
+      if (!cancelled) onError();
+      return;
+    }
+
+    ws.onmessage = (event) => {
+      if (cancelled) return;
+      try {
+        const data = JSON.parse(event.data as string);
+        if (Array.isArray(data)) {
+          onData((data as RawTenant[]).map(rawToTenant));
+        }
+        // {"type":"ping"} keepalive frames are ignored
+      } catch {
+        // ignore malformed frames
+      }
+    };
+
+    ws.onerror = () => {
+      // onerror is always followed by onclose — let onclose handle retry
+    };
+
+    ws.onclose = (event) => {
+      if (cancelled) return;
+      if (event.code === 4001) {
+        // Auth failure — do not retry
+        onError();
+        return;
+      }
+      // Reconnect after 2 s on unexpected disconnection
+      retryTimeout = setTimeout(connect, 2000);
+    };
+  }
+
+  connect();
+
+  return () => {
+    cancelled = true;
+    if (retryTimeout !== null) clearTimeout(retryTimeout);
+    ws?.close();
+  };
 }
 
 /**
