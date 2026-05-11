@@ -64,6 +64,7 @@ interface RawTenant {
   plan: string;
   createdAt: string;
   url: string;
+  wizardUrl?: string;
   region: string;
 }
 
@@ -97,6 +98,7 @@ function rawToTenant(r: RawTenant): Tenant {
     plan: r.plan as PlanId,
     createdAt: r.createdAt,
     url: r.url,
+    wizardUrl: r.wizardUrl,
     region: r.region,
   };
 }
