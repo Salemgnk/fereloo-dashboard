@@ -66,7 +66,7 @@ function DashboardPage() {
   if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-5 w-5 animate-spin rounded-full border border-foreground/20 border-t-foreground" />
+        <div className="h-5 w-5 animate-spin rounded-full border border-border border-t-primary" />
       </div>
     );
   }
@@ -115,11 +115,11 @@ function DashboardSkeleton() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-24 rounded-[2px]" />
+          <Skeleton key={i} className="h-24 rounded-xl" />
         ))}
       </div>
-      <Skeleton className="h-48 w-full rounded-[2px]" />
-      <Skeleton className="h-32 w-full rounded-[2px]" />
+      <Skeleton className="h-48 w-full rounded-xl" />
+      <Skeleton className="h-32 w-full rounded-xl" />
     </div>
   );
 }
@@ -128,7 +128,7 @@ function NoTenantState() {
   return (
     <div className="mx-auto max-w-2xl space-y-12 py-12">
       <div className="text-center">
-        <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-[4px] border border-border bg-secondary text-foreground">
+        <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-xl border border-border bg-secondary text-foreground">
           <Rocket className="h-7 w-7" />
         </div>
         <div className="inline-flex items-center gap-2 rounded-none border border-border bg-secondary/50 px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -151,9 +151,9 @@ function NoTenantState() {
         ].map(({ icon: Icon, label, desc }) => (
           <div
             key={label}
-            className="flex items-center gap-4 rounded-[2px] border border-border bg-card p-4 transition-colors hover:bg-secondary/50"
+            className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/40"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] bg-secondary text-foreground">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Icon className="h-5 w-5" strokeWidth={1.5} />
             </div>
             <div>
@@ -164,14 +164,14 @@ function NoTenantState() {
         ))}
       </div>
 
-      <div className="border border-foreground/10 bg-card p-8 rounded-[4px] flex flex-col items-center justify-center gap-6 text-center">
+      <div className="border border-foreground/10 bg-card p-8 rounded-xl flex flex-col items-center justify-center gap-6 text-center">
         <div>
           <h3 className="font-display text-lg font-bold">Lancer le déploiement</h3>
           <p className="mt-2 text-sm text-muted-foreground font-medium">
             Choisissez votre nom de domaine et lancez l'installation automatique.
           </p>
         </div>
-        <Button asChild className="h-12 px-8 rounded-[2px] font-bold text-xs uppercase tracking-widest">
+        <Button asChild className="h-12 px-8 rounded-xl font-bold text-xs uppercase tracking-widest">
           <Link to="/provision">
             Démarrer maintenant <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
@@ -193,10 +193,10 @@ function StatTile({
   sub: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[2px] border border-border bg-card p-5 group hover:bg-secondary/30 transition-colors">
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-5 group transition-all hover:border-primary/40">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground/60 group-hover:text-foreground transition-colors">
+          <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground/60">
             {label}
           </p>
           <p className="mt-3 font-display text-3xl font-bold tracking-tighter">
@@ -204,8 +204,8 @@ function StatTile({
           </p>
           <p className="mt-2 text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest truncate">{sub}</p>
         </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] bg-secondary text-foreground/40 group-hover:text-foreground transition-colors">
-          <Icon className="h-5 w-5" strokeWidth={1.5} />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
         </div>
       </div>
     </div>
@@ -223,7 +223,7 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
         <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Vue d'ensemble
         </div>
-        <Button asChild variant="outline" size="sm" className="h-8 px-4 rounded-[2px] font-bold text-[10px] uppercase tracking-widest border-border hover:border-foreground">
+        <Button asChild variant="outline" size="sm" className="h-8 px-4 rounded-xl font-bold text-[10px] uppercase tracking-widest border-border hover:border-foreground">
           <Link to="/provision">
             <Plus className="h-3.5 w-3.5 mr-2" />
             Nouvelle instance
@@ -269,7 +269,7 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
               {others.length} instance{others.length > 1 ? 's' : ''}
             </span>
           </div>
-          <div className="border border-border divide-y divide-border rounded-[2px] overflow-hidden">
+          <div className="border border-border divide-y divide-border rounded-xl overflow-hidden transition-all hover:border-primary/30">
             {others.map((t) => (
               <TenantRow key={t.id} tenant={t} />
             ))}
@@ -304,12 +304,12 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
   };
 
   return (
-    <div className="mt-12 border border-border bg-card rounded-[2px] overflow-hidden">
+    <div className="mt-12 border border-border bg-card rounded-xl overflow-hidden transition-all hover:border-primary/30">
       <div className="p-8">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-6">
             {/* Avatar */}
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[4px] border border-border bg-secondary font-display text-xl font-bold uppercase text-foreground">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-border bg-primary/10 font-display text-xl font-bold uppercase text-primary">
               {tenant.subdomain.slice(0, 2)}
             </div>
             <div className="min-w-0">
@@ -333,14 +333,14 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
               size="sm"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="h-9 w-9 p-0 rounded-[2px] border-border hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
+              className="h-9 w-9 p-0 rounded-xl border-border hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
               title="Supprimer l'instance"
             >
               {isDeleting ? <Activity className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
             </Button>
 
             {(isProv || isFailed) && (
-              <Button asChild variant="outline" size="sm" className="h-9 px-5 rounded-[2px] font-bold text-[10px] uppercase tracking-widest border-border">
+              <Button asChild variant="outline" size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-widest border-border">
                 <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
                   <Activity className="h-3.5 w-3.5 mr-2" />
                   {isProv ? 'Suivre l\'installation' : "Détails erreur"}
@@ -348,33 +348,25 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
               </Button>
             )}
             {isActive && (
-              <>
-                <Button asChild variant="outline" size="sm" className="h-9 px-5 rounded-[2px] font-bold text-[10px] uppercase tracking-widest border-border">
-                  <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
-                    <Activity className="h-3.5 w-3.5 mr-2" />
-                    Statistiques
-                  </Link>
-                </Button>
-                <Button asChild size="sm" className="h-9 px-6 rounded-[2px] font-bold text-[10px] uppercase tracking-widest">
-                  <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-3.5 w-3.5 mr-2" />
-                    Ouvrir le CRM
-                  </a>
-                </Button>
-              </>
+              <Button asChild size="sm" className="h-9 px-6 rounded-lg font-bold text-[10px] uppercase tracking-widest">
+                <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-3.5 w-3.5 mr-2" />
+                  Ouvrir le CRM
+                </a>
+              </Button>
             )}
           </div>
         </div>
 
         {isProv && (
-          <div className="mt-8 flex items-center gap-4 rounded-[2px] border border-border bg-secondary/50 px-6 py-4 text-xs font-bold uppercase tracking-widest text-foreground">
+          <div className="mt-8 flex items-center gap-4 rounded-xl border border-border bg-secondary/50 px-6 py-4 text-xs font-bold uppercase tracking-widest text-foreground">
             <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
             Installation en cours. Suivez l'avancement en temps réel.
           </div>
         )}
 
         {isFailed && (
-          <div className="mt-8 flex items-center gap-4 rounded-[2px] border border-destructive/20 bg-destructive/5 px-6 py-4 text-xs font-bold uppercase tracking-widest text-destructive">
+          <div className="mt-8 flex items-center gap-4 rounded-xl border border-destructive/20 bg-destructive/5 px-6 py-4 text-xs font-bold uppercase tracking-widest text-destructive">
             <Activity className="h-4 w-4" />
             Échec du déploiement. Veuillez consulter les logs pour plus de détails.
           </div>
@@ -424,7 +416,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
 
   return (
     <div className="flex flex-col gap-4 px-6 py-5 transition-colors hover:bg-secondary/30 sm:flex-row sm:items-center sm:gap-6">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] border border-border bg-secondary font-mono text-[10px] font-bold uppercase text-muted-foreground/60">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-secondary font-mono text-[10px] font-bold uppercase text-muted-foreground/60">
         {tenant.subdomain.slice(0, 2)}
       </div>
       <div className="min-w-0 flex-1">
@@ -444,17 +436,17 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
           size="sm"
           onClick={handleDelete}
           disabled={isDeleting}
-          className="h-8 w-8 p-0 rounded-[2px] border-border hover:bg-destructive/5 hover:text-destructive"
+          className="h-8 w-8 p-0 rounded-xl border-border hover:bg-destructive/5 hover:text-destructive"
         >
           {isDeleting ? <Activity className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
         </Button>
-        <Button asChild size="sm" variant="outline" className="h-8 px-4 rounded-[2px] font-bold text-[9px] uppercase tracking-widest border-border">
+        <Button asChild size="sm" variant="outline" className="h-8 px-4 rounded-xl font-bold text-[9px] uppercase tracking-widest border-border">
           <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
             Logs
           </Link>
         </Button>
         {tenant.status === 'active' && (
-          <Button asChild size="sm" variant="outline" className="h-8 px-4 rounded-[2px] font-bold text-[9px] uppercase tracking-widest border-border hover:bg-foreground hover:text-background">
+          <Button asChild size="sm" variant="outline" className="h-8 px-4 rounded-xl font-bold text-[9px] uppercase tracking-widest border-border hover:bg-foreground hover:text-background">
             <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
               Accès
             </a>

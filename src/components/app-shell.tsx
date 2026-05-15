@@ -17,7 +17,7 @@ function UserAvatar({ name, email }: { name: string; email: string }) {
         <div className="text-[11px] font-bold uppercase tracking-tight leading-tight">{name}</div>
         <div className="font-mono text-[9px] leading-tight text-muted-foreground/60">{email}</div>
       </div>
-      <div className="flex h-8 w-8 items-center justify-center rounded-[2px] border border-border bg-secondary font-mono text-[10px] font-bold text-foreground">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-secondary font-mono text-[10px] font-bold text-foreground">
         {initials}
       </div>
     </div>
@@ -63,10 +63,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+    <div className="relative min-h-screen bg-background text-foreground">
+      {/* Subtle top glow — same as landing */}
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 h-[360px] z-0"
+        style={{ background: 'radial-gradient(ellipse 70% 60% at 50% -10%, oklch(0.55 0.22 295 / 0.10) 0%, transparent 70%)' }}
+      />
 
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-md">
+      <header className="relative z-30 sticky top-0 border-b border-border/60 bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
 
           <div className="flex items-center gap-4">
@@ -128,7 +132,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 md:px-6">
         {children}
       </main>
     </div>
