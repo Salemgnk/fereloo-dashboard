@@ -1,52 +1,69 @@
 import { createFileRoute, useRouter, Link } from '@tanstack/react-router';
-import { useEffect, useRef, useState } from 'react';
-import {
-  ArrowLeft,
-  CheckCircle2,
-  ExternalLink,
-  XCircle,
-  Terminal,
-  Database,
-  Server,
-  Box,
-  Globe,
-  RefreshCw,
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle2, ExternalLink, XCircle, RefreshCw } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { ProvisioningSpinner } from '@/components/provisioning-spinner';
-import { StatusBadge } from '@/components/status-badge';
 import { useAuth } from '@/lib/use-auth';
 import { streamTenantStatus } from '@/lib/api';
-import type {
-  ProvisioningLog,
-  ProvisioningStep,
-  ProvisioningStepKey,
-  ProvisioningStepStatus,
-  TenantStatusResponse,
-} from '@/lib/types';
+import type { TenantStatusResponse } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/status/$tenantId')({
   head: () => ({
     meta: [
-      { title: 'Statut du déploiement — Fereloo' },
-      {
-        name: 'description',
-        content: 'Suivi en temps réel du provisioning de votre instance Fereloo CRM.',
-      },
+      { title: 'Déploiement en cours — Fereloo' },
+      { name: 'description', content: 'Votre CRM Fereloo est en cours de déploiement.' },
     ],
   }),
   component: StatusPage,
 });
 
-const STEP_ICONS: Record<ProvisioningStepKey, React.ComponentType<{ className?: string }>> = {
-  mariadb: Database,
-  redis: Server,
-  app: Box,
-  domain: Globe,
-};
+const TIPS = [
+  "Votre base de données est isolée — aucune ressource partagée avec d'autres clients.",
+  "Un certificat SSL est automatiquement généré pour sécuriser votre accès.",
+  "Votre instance Redis dédiée garantit des performances optimales.",
+  "L'installation complète prend en moyenne 3 à 5 minutes.",
+  "Vos données sont hébergées en Afrique de l'Ouest pour une latence minimale.",
+  "Vous recevrez un accès administrateur complet à votre CRM Fereloo.",
+  "Chaque instance est déployée dans un environnement Docker isolé.",
+  "Votre CRM sera accessible 24h/24 avec une disponibilité garantie de 99,9 %.",
+];
+
+function useTips() {
+  const [index, setIndex] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIndex((i) => (i + 1) % TIPS.length);
+        setVisible(true);
+      }, 400);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return { tip: TIPS[index], visible };
+}
+
+function useTenantStatusStream(tenantId: string) {
+  const [data, setData] = useState<TenantStatusResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    const cleanup = streamTenantStatus(
+      tenantId,
+      (d) => { setData(d); setIsLoading(false); setIsError(false); },
+      () => { setIsError(true); setIsLoading(false); },
+    );
+    return cleanup;
+  }, [tenantId]);
+
+  return { data, isLoading, isError };
+}
 
 function StatusPage() {
   const { user, loading } = useAuth();
@@ -71,368 +88,144 @@ function StatusPage() {
   );
 }
 
-function useTenantStatusStream(tenantId: string) {
-  const [data, setData] = useState<TenantStatusResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-
-  useEffect(() => {
-    const cleanup = streamTenantStatus(
-      tenantId,
-      (d) => { setData(d); setIsLoading(false); setIsError(false); },
-      () => { setIsError(true); setIsLoading(false); },
-    );
-    return cleanup;
-  }, [tenantId]);
-
-  return { data, isLoading, isError };
-}
-
 function StatusView() {
   const { tenantId } = Route.useParams();
   const { data, isLoading, isError } = useTenantStatusStream(tenantId);
+  const { tip, visible } = useTips();
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 text-center">
         <ProvisioningSpinner size="lg" />
-        <div className="space-y-1.5">
-          <p className="font-display text-sm font-bold tracking-tight">Connexion au déploiement…</p>
-          <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground/50">
-            Flux en temps réel
-          </p>
-        </div>
+        <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground/40 animate-pulse">
+          Connexion…
+        </p>
       </div>
     );
   }
 
   if (isError || !data) {
     return (
-      <Card className="border-border bg-card p-10 text-center">
-        <XCircle className="mx-auto h-10 w-10 text-destructive" />
-        <h2 className="mt-4 text-lg font-semibold">Instance introuvable</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Cette instance n'existe pas ou a été supprimée.
-        </p>
-        <Button asChild className="mt-6">
-          <Link to="/dashboard">Retour au tableau de bord</Link>
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 text-center">
+        <XCircle className="h-12 w-12 text-destructive/60" />
+        <div className="space-y-2">
+          <p className="font-display text-lg font-bold">Instance introuvable</p>
+          <p className="text-sm text-muted-foreground">Cette instance n'existe pas ou a été supprimée.</p>
+        </div>
+        <Button asChild variant="outline">
+          <Link to="/">Retour au tableau de bord</Link>
         </Button>
-      </Card>
+      </div>
     );
   }
 
-  const { tenant, progress, steps, logs, errorMessage } = data;
+  const { tenant, progress, errorMessage } = data;
   const isReady = tenant.status === 'active';
   const isFailed = tenant.status === 'failed';
-  const isProvisioning = tenant.status === 'provisioning';
+  const isProvisioning = !isReady && !isFailed;
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <Button variant="ghost" size="sm" asChild className="-ml-2">
-          <Link to="/dashboard">
-            <ArrowLeft className="h-4 w-4" />
-            Retour au tableau de bord
+  if (isReady) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 text-center animate-fade-in">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full border border-success/30 bg-success/10">
+          <CheckCircle2 className="h-9 w-9 text-success" />
+        </div>
+        <div className="space-y-2">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-success/70">Déploiement terminé</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Votre CRM est prêt.</h1>
+          <p className="text-sm text-muted-foreground">
+            Accessible sur{' '}
+            <span className="font-mono text-foreground">{tenant.subdomain}.fereloo.com</span>
+          </p>
+        </div>
+        <Button asChild size="lg" className="glow-primary h-12 px-8 font-bold text-xs uppercase tracking-widest">
+          <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="h-4 w-4" />
+            Ouvrir votre CRM Fereloo
+          </a>
+        </Button>
+        <Link to="/" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+          Retour au tableau de bord
+        </Link>
+      </div>
+    );
+  }
+
+  if (isFailed) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 text-center animate-fade-in">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full border border-destructive/30 bg-destructive/10">
+          <XCircle className="h-9 w-9 text-destructive" />
+        </div>
+        <div className="space-y-2">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-destructive/70">Échec du déploiement</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Une erreur s'est produite.</h1>
+          {errorMessage && (
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">{errorMessage}</p>
+          )}
+        </div>
+        <Button asChild variant="outline" className="h-11 px-6 font-bold text-xs uppercase tracking-widest">
+          <Link to="/provision">
+            <RefreshCw className="h-4 w-4" />
+            Relancer le déploiement
           </Link>
         </Button>
-        <div className="mt-4 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 font-display text-sm font-extrabold uppercase text-primary">
-                {tenant.subdomain.slice(0, 2)}
-              </div>
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <h1 className="font-display text-2xl font-bold tracking-tight">{tenant.subdomain}</h1>
-                  <StatusBadge status={tenant.status} />
-                </div>
-                <p className="mt-0.5 font-mono text-xs text-muted-foreground">
-                  {tenant.id} · {tenant.region} · plan {tenant.plan}
-                </p>
-              </div>
-            </div>
-          </div>
-          {isReady && (
-            <Button asChild className="glow-primary shrink-0">
-              <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4" />
-                Ouvrir votre CRM Fereloo
-              </a>
-            </Button>
-          )}
-          {isFailed && (
-            <Button asChild variant="outline" className="shrink-0">
-              <Link to="/provision">
-                <RefreshCw className="h-4 w-4" />
-                Relancer un provisioning
-              </Link>
-            </Button>
-          )}
-        </div>
+        <Link to="/" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+          Retour au tableau de bord
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-10 text-center">
+
+      {/* Spinner */}
+      <ProvisioningSpinner size="lg" />
+
+      {/* Title */}
+      <div className="space-y-2">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-primary/60">
+          Déploiement en cours
+        </p>
+        <h1 className="font-display text-2xl font-bold tracking-tight">
+          {tenant.subdomain}<span className="text-muted-foreground/30">.fereloo.com</span>
+        </h1>
       </div>
 
-      {/* Progress card */}
-      <Card className="border-border bg-card overflow-hidden">
-        <div
+      {/* Progress bar */}
+      <div className="w-full max-w-xs space-y-2">
+        <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
+          <div
+            className="h-full rounded-full progress-gradient transition-all duration-700"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="font-mono text-[11px] text-muted-foreground/40 tabular-nums">
+          {progress} %
+        </p>
+      </div>
+
+      {/* Rotating tip */}
+      <div className="max-w-sm px-4">
+        <p
           className={cn(
-            'h-px',
-            isReady
-              ? 'bg-gradient-to-r from-success/40 via-success to-success/40'
-              : isFailed
-              ? 'bg-gradient-to-r from-destructive/40 via-destructive to-destructive/40'
-              : 'bg-gradient-to-r from-primary/40 via-primary to-primary/40',
+            'text-sm text-muted-foreground/60 leading-relaxed transition-opacity duration-400',
+            visible ? 'opacity-100' : 'opacity-0',
           )}
-        />
-        <div className="p-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              {isProvisioning && <ProvisioningSpinner size="xs" />}
-              {isReady && <CheckCircle2 className="h-4 w-4 text-success" />}
-              {isFailed && <XCircle className="h-4 w-4 text-destructive" />}
-              <span className="text-sm font-medium">
-                {isReady
-                  ? 'Déploiement terminé avec succès'
-                  : isFailed
-                  ? 'Échec du déploiement'
-                  : 'Déploiement en cours…'}
-              </span>
-            </div>
-            <span className="font-display text-2xl font-bold tabular-nums">
-              {progress}
-              <span className="text-sm font-normal text-muted-foreground">%</span>
-            </span>
-          </div>
+        >
+          {tip}
+        </p>
+      </div>
 
-          {/* Progress bar */}
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
-            <div
-              className={cn(
-                'h-full rounded-full transition-all duration-700',
-                isReady
-                  ? 'bg-success'
-                  : isFailed
-                  ? 'bg-destructive'
-                  : 'progress-gradient',
-              )}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          {errorMessage && (
-            <p className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-xs text-destructive">
-              {errorMessage}
-            </p>
-          )}
-        </div>
-      </Card>
-
-      {/* Pipeline visualization */}
-      <PipelineView steps={steps} />
-
-      {/* Logs console */}
-      <LogsConsole logs={logs} live={isProvisioning} />
-    </div>
-  );
-}
-
-function PipelineView({ steps }: { steps: ProvisioningStep[] }) {
-  return (
-    <Card className="border-border bg-card overflow-hidden">
-      <div className="flex items-center justify-between border-b border-border px-5 py-3">
-        <h2 className="text-sm font-medium">Pipeline de déploiement</h2>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          {steps.filter((s) => s.status === 'success').length}/{steps.length} étapes
+      {/* Live indicator */}
+      <div className="flex items-center gap-2">
+        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-glow" />
+        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40">
+          En direct
         </span>
       </div>
 
-      {/* Pipeline steps — horizontal on md+, vertical on mobile */}
-      <div className="p-5">
-        {/* Desktop: horizontal pipeline */}
-        <div className="hidden md:flex md:items-start md:gap-0">
-          {steps.map((step, i) => (
-            <div key={step.key} className="flex flex-1 items-start">
-              <div className="flex flex-1 flex-col items-center text-center">
-                <PipelineStepIcon step={step} />
-                <p className="mt-2 text-xs font-semibold">{step.label}</p>
-                <p className="mt-0.5 font-mono text-[10px] text-muted-foreground max-w-[100px]">
-                  {step.description}
-                </p>
-                <StepStatusLabel status={step.status} />
-              </div>
-              {i < steps.length - 1 && (
-                <div className="mt-4 flex-1 min-w-[24px]">
-                  <PipelineConnector fromStatus={step.status} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Mobile: vertical list */}
-        <ol className="space-y-0 md:hidden">
-          {steps.map((step, i) => (
-              <li key={step.key} className="flex gap-3">
-                {/* Timeline line + dot */}
-                <div className="flex flex-col items-center">
-                  <PipelineStepIcon step={step} size="sm" />
-                  {i < steps.length - 1 && (
-                    <div
-                      className={cn(
-                        'mt-1 w-px flex-1 min-h-[32px]',
-                        step.status === 'success' ? 'bg-success/40' : 'bg-border',
-                      )}
-                    />
-                  )}
-                </div>
-                <div className="pb-6 pt-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">{step.label}</span>
-                    <StepStatusLabel status={step.status} />
-                  </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{step.description}</p>
-                </div>
-              </li>
-          ))}
-        </ol>
-      </div>
-    </Card>
-  );
-}
-
-function PipelineStepIcon({
-  step,
-  size = 'md',
-}: {
-  step: ProvisioningStep;
-  size?: 'sm' | 'md';
-}) {
-  const Icon = STEP_ICONS[step.key as ProvisioningStepKey];
-  const dim = size === 'sm' ? 'h-8 w-8' : 'h-11 w-11';
-  const iconDim = size === 'sm' ? 'h-3.5 w-3.5' : 'h-5 w-5';
-
-  const containerClass = cn(
-    'flex shrink-0 items-center justify-center rounded-full border-2 transition-all',
-    dim,
-    step.status === 'success' &&
-      'border-success bg-success/15 text-success',
-    step.status === 'running' &&
-      'border-primary bg-primary/15 text-primary',
-    step.status === 'failed' &&
-      'border-destructive bg-destructive/15 text-destructive',
-    step.status === 'pending' &&
-      'border-border bg-secondary text-muted-foreground',
-  );
-
-  return (
-    <div className={containerClass}>
-      {step.status === 'running' ? (
-        <ProvisioningSpinner size={size === 'sm' ? 'xs' : 'sm'} />
-      ) : step.status === 'success' ? (
-        <CheckCircle2 className={iconDim} />
-      ) : step.status === 'failed' ? (
-        <XCircle className={iconDim} />
-      ) : (
-        <Icon className={iconDim} />
-      )}
     </div>
-  );
-}
-
-function PipelineConnector({ fromStatus }: { fromStatus: ProvisioningStepStatus }) {
-  return (
-    <div className="flex items-center justify-center pt-5">
-      <div
-        className={cn(
-          'h-px w-full transition-all',
-          fromStatus === 'success' ? 'bg-success/60' : 'bg-border/60',
-        )}
-      />
-    </div>
-  );
-}
-
-function StepStatusLabel({ status }: { status: ProvisioningStepStatus }) {
-  const config: Record<ProvisioningStepStatus, { label: string; cls: string }> = {
-    success: { label: 'Terminé', cls: 'text-success' },
-    running: { label: 'En cours', cls: 'text-primary' },
-    failed: { label: 'Échec', cls: 'text-destructive' },
-    pending: { label: 'En attente', cls: 'text-muted-foreground' },
-  };
-  const { label, cls } = config[status];
-  return (
-    <span className={cn('mt-1.5 font-mono text-[10px] uppercase tracking-wider', cls)}>
-      {label}
-    </span>
-  );
-}
-
-function LogsConsole({ logs, live }: { logs: ProvisioningLog[]; live: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
-  }, [logs]);
-
-  return (
-    <Card className="overflow-hidden border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border px-5 py-3">
-        <div className="flex items-center gap-2.5">
-          <Terminal className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium">Logs</span>
-          {live && (
-            <span className="inline-flex h-1.5 w-1.5 animate-pulse-glow rounded-full bg-primary" />
-          )}
-        </div>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          {logs.length} entrée{logs.length !== 1 ? 's' : ''}{live ? ' · live' : ''}
-        </span>
-      </div>
-
-      <div
-        ref={ref}
-        className="max-h-[440px] overflow-auto bg-[oklch(0.12_0_0)] p-4 font-mono text-xs leading-relaxed"
-      >
-        {logs.length === 0 ? (
-          <p className="text-muted-foreground/60 italic">En attente du flux de logs…</p>
-        ) : (
-          <div className="space-y-0.5">
-            {logs.map((log) => {
-              const time = new Date(log.timestamp).toLocaleTimeString('fr-FR', { hour12: false });
-              const colorMap: Record<typeof log.level, string> = {
-                info: 'text-foreground/75',
-                success: 'text-success',
-                error: 'text-destructive',
-                warn: 'text-warning',
-              };
-              const prefixMap: Record<typeof log.level, string> = {
-                info: 'text-primary/60',
-                success: 'text-success/70',
-                error: 'text-destructive/70',
-                warn: 'text-warning/70',
-              };
-              const prefix: Record<typeof log.level, string> = {
-                info: 'INFO ',
-                success: ' OK  ',
-                error: 'ERR  ',
-                warn: 'WARN ',
-              };
-              return (
-                <div key={log.id} className="flex gap-3">
-                  <span className="shrink-0 text-muted-foreground/40 tabular-nums">{time}</span>
-                  <span className={cn('shrink-0', prefixMap[log.level])}>{prefix[log.level]}</span>
-                  <span className={cn('break-all', colorMap[log.level])}>{log.message}</span>
-                </div>
-              );
-            })}
-            {live && (
-              <div className="flex items-center gap-2 pt-1 text-muted-foreground/50">
-                <span className="text-primary animate-pulse">▌</span>
-                <span className="italic">En attente…</span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </Card>
   );
 }
