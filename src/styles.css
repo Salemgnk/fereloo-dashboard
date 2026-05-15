@@ -4,9 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Fereloo design system — Frappe CRM-inspired.
- * Dark, minimal, functional. Violet primary on near-black surfaces.
- * Display: Syne (700/800) · Body: DM Sans · Mono: JetBrains Mono
+ * FERELOO Workspace Dashboard Design System v1.0
+ * Modern, fast, cloud-native SaaS control center.
+ * Light theme, Orange primary (#F97316), clean and minimal.
+ * Display/Body: Inter, system-ui
  */
 
 @theme inline {
@@ -39,65 +40,75 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-display: 'Syne', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
-/*
- * Frappe CRM palette
- *  background  #111111
- *  card        #1c1c1c
- *  border      #2a2a2a
- *  primary     #7c3aed (violet 600)
- *  text        #f5f5f5  /  muted #a1a1aa
- */
 :root {
   --radius: 0.5rem;
 
-  --background: oklch(0.17 0 0);
-  --foreground: oklch(0.97 0 0);
+  --background: oklch(1 0 0);           /* #FFFFFF */
+  --foreground: oklch(0.20 0.015 270);  /* #111827 */
 
-  --card: oklch(0.22 0 0);
-  --card-foreground: oklch(0.97 0 0);
+  --card: oklch(1 0 0);                 /* #FFFFFF */
+  --card-foreground: oklch(0.20 0.015 270);
 
-  --popover: oklch(0.22 0 0);
-  --popover-foreground: oklch(0.97 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.015 270);
 
-  --primary: oklch(0.55 0.22 295);        /* violet ~#7c3aed */
-  --primary-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.68 0.18 45);       /* #F97316 (Orange 500) */
+  --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.26 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
+  --secondary: oklch(0.97 0.005 270);   /* #F9FAFB */
+  --secondary-foreground: oklch(0.25 0.015 270);
 
-  --muted: oklch(0.24 0 0);
-  --muted-foreground: oklch(0.68 0 0);
+  --muted: oklch(0.975 0.005 270);      /* #F3F4F6 */
+  --muted-foreground: oklch(0.50 0.015 270); /* #6B7280 */
 
-  --accent: oklch(0.27 0.01 295);
-  --accent-foreground: oklch(0.97 0 0);
+  --accent: oklch(0.975 0.005 270);     /* #F3F4F6 */
+  --accent-foreground: oklch(0.20 0.015 270);
 
   --destructive: oklch(0.62 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive-foreground: oklch(1 0 0);
 
-  --success: oklch(0.72 0.17 155);
-  --success-foreground: oklch(0.17 0 0);
+  --success: oklch(0.66 0.15 150);
+  --success-foreground: oklch(1 0 0);
 
-  --warning: oklch(0.82 0.15 85);
-  --warning-foreground: oklch(0.17 0 0);
+  --warning: oklch(0.78 0.16 80);
+  --warning-foreground: oklch(0.20 0.015 270);
 
-  --border: oklch(0.30 0 0);
-  --input: oklch(0.26 0 0);
-  --ring: oklch(0.55 0.22 295);
+  --border: oklch(0.93 0.005 270);      /* #E5E7EB */
+  --input: oklch(0.93 0.005 270);
+  --ring: oklch(0.68 0.18 45);
 }
 
-/* Ensure font defaults match the minimal technical look */
-@layer base {
-  body {
-    -webkit-font-smoothing: antialiased;
-    letter-spacing: -0.01em;
-  }
+.dark {
+  /* Dark mode is disabled by default per specs, falling back to light variables for safety */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.20 0.015 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.015 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.015 270);
+  --primary: oklch(0.68 0.18 45);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.005 270);
+  --secondary-foreground: oklch(0.25 0.015 270);
+  --muted: oklch(0.975 0.005 270);
+  --muted-foreground: oklch(0.50 0.015 270);
+  --accent: oklch(0.975 0.005 270);
+  --accent-foreground: oklch(0.20 0.015 270);
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.66 0.15 150);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.78 0.16 80);
+  --warning-foreground: oklch(0.20 0.015 270);
+  --border: oklch(0.93 0.005 270);
+  --input: oklch(0.93 0.005 270);
+  --ring: oklch(0.68 0.18 45);
 }
-
 
 @layer base {
   * {
@@ -106,15 +117,15 @@
 
   html {
     background-color: var(--color-background);
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
   }
 
   .font-mono {
@@ -122,122 +133,28 @@
   }
 }
 
-/*
- * Landing-specific backgrounds
- */
-.bg-cyber-grid { background-image: none; }
-
-.bg-dot-grid {
-  background-image: radial-gradient(oklch(0.36 0 0) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-
-/* Violet glow — used on primary CTAs and highlighted cards */
+/* Vercel/Stripe-like subtle glows and shadows */
 .glow-primary {
   box-shadow:
-    0 0 0 1px oklch(0.55 0.22 295 / 0.22),
-    0 4px 24px oklch(0.55 0.22 295 / 0.18),
-    0 1px 3px oklch(0 0 0 / 0.4);
+    0 0 0 1px oklch(0.68 0.18 45 / 0.2),
+    0 4px 12px oklch(0.68 0.18 45 / 0.1),
+    0 1px 2px oklch(0 0 0 / 0.05);
 }
 
-/* Hero entrance stagger */
+.shadow-soft {
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.04), 0 4px 12px oklch(0 0 0 / 0.05);
+}
+
+/* Animations */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-up {
-  animation: fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .animation-delay-100 { animation-delay: 100ms; }
 .animation-delay-200 { animation-delay: 200ms; }
-.animation-delay-300 { animation-delay: 300ms; }
-.animation-delay-400 { animation-delay: 400ms; }
-.animation-delay-500 { animation-delay: 500ms; }
-
-/* Subtle pulse for live indicators (dot only, no glow halo) */
-@keyframes pulse-glow {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.45; }
-}
-.animate-pulse-glow {
-  animation: pulse-glow 1.6s ease-in-out infinite;
-}
-
-/* Gradient text — violet */
-.text-gradient-primary {
-  background-image: linear-gradient(
-    135deg,
-    oklch(0.80 0.18 295) 0%,
-    oklch(0.60 0.25 295) 50%,
-    oklch(0.50 0.22 295) 100%
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-/* Subtle grid lines background */
-.bg-grid-lines {
-  background-image:
-    linear-gradient(to right, oklch(0.30 0 0 / 0.18) 1px, transparent 1px),
-    linear-gradient(to bottom, oklch(0.30 0 0 / 0.18) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
-
-/* Pipeline connector line — horizontal */
-.pipeline-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    oklch(0.55 0.22 295 / 0.5),
-    oklch(0.55 0.22 295 / 0.1)
-  );
-}
-.pipeline-line-done {
-  background: oklch(0.72 0.17 155 / 0.6);
-}
-.pipeline-line-pending {
-  background: oklch(0.30 0 0);
-}
-
-/* Shimmer animation for loading states */
-@keyframes shimmer {
-  from { background-position: -200% center; }
-  to   { background-position: 200% center; }
-}
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    oklch(0.22 0 0) 0%,
-    oklch(0.28 0 0) 50%,
-    oklch(0.22 0 0) 100%
-  );
-  background-size: 200% auto;
-  animation: shimmer 1.8s linear infinite;
-}
-
-/* Progress bar gradient fill */
-.progress-gradient {
-  background: linear-gradient(
-    90deg,
-    oklch(0.55 0.22 295),
-    oklch(0.65 0.20 295)
-  );
-}
-
-/* Animated entrance for sections */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.animate-fade-in {
-  animation: fade-in 0.4s ease both;
-}
-.animation-delay-50  { animation-delay: 50ms; }
-.animation-delay-600 { animation-delay: 600ms; }
-.animation-delay-700 { animation-delay: 700ms; }
 
 /* ── Provisioning spinner ── */
 @keyframes spin-cw  { to { transform: rotate(360deg);  } }
