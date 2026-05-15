@@ -72,14 +72,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground">
-      {/* Subtle top glow — same as landing */}
-      <div
-        className="pointer-events-none fixed inset-x-0 top-0 h-[360px] z-0"
-        style={{ background: 'radial-gradient(ellipse 70% 60% at 50% -10%, oklch(0.56 0.20 230 / 0.10) 0%, transparent 70%)' }}
-      />
+    <div className="relative min-h-screen bg-background text-foreground antialiased overflow-hidden">
+      <div className="fixed inset-0 bg-cyber-grid opacity-[0.03] pointer-events-none" />
+      <div className="fixed inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80 pointer-events-none" aria-hidden="true">
+        <div
+          className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary to-secondary opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+          style={{
+            clipPath:
+              'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
+          }}
+        />
+      </div>
 
-      <header className="relative z-30 sticky top-0 border-b border-border/60 bg-background/90 backdrop-blur-md">
+      <header className="relative z-30 sticky top-0 border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
 
           <div className="flex items-center gap-4">
