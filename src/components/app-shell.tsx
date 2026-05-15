@@ -124,9 +124,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                  <Globe className="h-4 w-4" />
-                  <span className="sr-only">{t('nav.changeLanguage')}</span>
+                <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-muted-foreground hover:text-foreground">
+                  <Globe className="h-3.5 w-3.5" />
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider">
+                    {i18n.language.slice(0, 2)}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
