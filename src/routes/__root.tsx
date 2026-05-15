@@ -6,6 +6,7 @@ import { Zap } from "lucide-react";
 import { useEffect } from "react";
 import { setTokenGetter } from "@/lib/api";
 import appCss from "../styles.css?url";
+import "@/lib/i18n";
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string;
 

@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { ReactNode } from 'react';
 import { LayoutDashboard, Plus, LogOut, Zap, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/use-auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,17 +32,18 @@ function UserAvatar({ name, email }: { name: string; email: string }) {
 }
 
 function Breadcrumbs() {
+  const { t } = useTranslation();
   const router = useRouterState();
   const path = router.location.pathname;
 
   const crumbs: Array<{ label: string; href?: string }> = [
-    { label: 'ACCUEIL', href: '/' },
+    { label: t('nav.home'), href: '/' },
   ];
 
   if (path === '/provision') {
-    crumbs.push({ label: 'INSTALLATION' });
+    crumbs.push({ label: t('nav.provision') });
   } else if (path.startsWith('/status/')) {
-    crumbs.push({ label: 'STATUT' });
+    crumbs.push({ label: t('nav.status') });
   }
 
   if (crumbs.length <= 1) return null;
@@ -65,6 +67,7 @@ function Breadcrumbs() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { t, i18n } = useTranslation();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -101,7 +104,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 }}
               >
                 <LayoutDashboard className="h-3.5 w-3.5" />
-                Tableau de bord
+                {t('nav.dashboard')}
               </Link>
             </nav>
 
@@ -116,25 +119,25 @@ export function AppShell({ children }: { children: ReactNode }) {
               className="hidden h-8 gap-1.5 text-xs sm:inline-flex"
             >
               <Plus className="h-3.5 w-3.5" />
-              Nouvelle instance
+              {t('nav.newInstance')}
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                   <Globe className="h-4 w-4" />
-                  <span className="sr-only">Changer de langue</span>
+                  <span className="sr-only">{t('nav.changeLanguage')}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => {}}>
-                  Français
+                <DropdownMenuItem onClick={() => i18n.changeLanguage('fr')}>
+                  {t('nav.fr')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {}}>
-                  English
+                <DropdownMenuItem onClick={() => i18n.changeLanguage('en')}>
+                  {t('nav.en')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {}}>
-                  Deutsch
+                <DropdownMenuItem onClick={() => i18n.changeLanguage('de')}>
+                  {t('nav.de')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -146,7 +149,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   size="icon"
                   variant="ghost"
                   onClick={signOut}
-                  aria-label="Déconnexion"
+                  aria-label={t('nav.logout')}
                   className="h-7 w-7 text-muted-foreground hover:text-foreground"
                 >
                   <LogOut className="h-3.5 w-3.5" />
