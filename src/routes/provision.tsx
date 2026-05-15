@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   Check,
-  Loader2,
   Rocket,
   Sparkles,
   Globe,
@@ -16,6 +15,7 @@ import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ProvisioningSpinner } from '@/components/provisioning-spinner';
 import { useAuth } from '@/lib/use-auth';
 import { checkSubdomainAvailable, provisionTenant } from '@/lib/api';
 import { PLANS, type PlanId } from '@/lib/types';
@@ -49,7 +49,7 @@ function ProvisionPage() {
   if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <ProvisioningSpinner size="lg" />
       </div>
     );
   }
@@ -283,7 +283,7 @@ function ProvisionForm() {
           >
             {provision.isPending ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <ProvisioningSpinner size="xs" />
                 Création en cours…
               </>
             ) : (
@@ -306,7 +306,7 @@ function SubdomainStatus({ state }: { state: SubdomainCheck }) {
   const config: Record<Exclude<SubdomainCheck, 'idle'>, { msg: string; icon: React.ReactNode; cls: string }> = {
     checking: {
       msg: 'Vérification de la disponibilité…',
-      icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
+      icon: <ProvisioningSpinner size="xs" className="text-muted-foreground" />,
       cls: 'text-muted-foreground',
     },
     available: {

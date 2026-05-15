@@ -238,3 +238,27 @@
 .animation-delay-50  { animation-delay: 50ms; }
 .animation-delay-600 { animation-delay: 600ms; }
 .animation-delay-700 { animation-delay: 700ms; }
+
+/* ── Provisioning spinner ── */
+@keyframes spin-cw  { to { transform: rotate(360deg);  } }
+@keyframes spin-ccw { to { transform: rotate(-360deg); } }
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1);    }
+  50%       { opacity: 1;   transform: scale(1.35); }
+}
+
+.spinner-cw {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin-cw 1.4s linear infinite;
+}
+.spinner-ccw {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin-ccw 2.2s linear infinite;
+}
+.spinner-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: dot-pulse 1.4s ease-in-out infinite;
+}

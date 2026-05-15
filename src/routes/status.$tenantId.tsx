@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   ExternalLink,
-  Loader2,
   XCircle,
   Terminal,
   Database,
@@ -16,7 +15,7 @@ import {
 import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ProvisioningSpinner } from '@/components/provisioning-spinner';
 import { StatusBadge } from '@/components/status-badge';
 import { useAuth } from '@/lib/use-auth';
 import { streamTenantStatus } from '@/lib/api';
@@ -60,7 +59,7 @@ function StatusPage() {
   if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <ProvisioningSpinner size="lg" />
       </div>
     );
   }
@@ -95,11 +94,14 @@ function StatusView() {
 
   if (isLoading) {
     return (
-      <div className="space-y-5">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-28 w-full rounded-xl" />
-        <Skeleton className="h-40 w-full rounded-xl" />
-        <Skeleton className="h-72 w-full rounded-xl" />
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
+        <ProvisioningSpinner size="lg" />
+        <div className="space-y-1.5">
+          <p className="font-display text-sm font-bold tracking-tight">Connexion au déploiement…</p>
+          <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground/50">
+            Flux en temps réel
+          </p>
+        </div>
       </div>
     );
   }
@@ -185,9 +187,7 @@ function StatusView() {
         <div className="p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              {isProvisioning && (
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              )}
+              {isProvisioning && <ProvisioningSpinner size="xs" />}
               {isReady && <CheckCircle2 className="h-4 w-4 text-success" />}
               {isFailed && <XCircle className="h-4 w-4 text-destructive" />}
               <span className="text-sm font-medium">
@@ -327,7 +327,7 @@ function PipelineStepIcon({
   return (
     <div className={containerClass}>
       {step.status === 'running' ? (
-        <Loader2 className={cn(iconDim, 'animate-spin')} />
+        <ProvisioningSpinner size={size === 'sm' ? 'xs' : 'sm'} />
       ) : step.status === 'success' ? (
         <CheckCircle2 className={iconDim} />
       ) : step.status === 'failed' ? (
