@@ -1,8 +1,14 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { ReactNode } from 'react';
-import { LayoutDashboard, Plus, LogOut, Zap, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Plus, LogOut, Zap, Globe } from 'lucide-react';
 import { useAuth } from '@/lib/use-auth';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 function UserAvatar({ name, email }: { name: string; email: string }) {
   const initials = name
@@ -67,7 +73,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Subtle top glow — same as landing */}
       <div
         className="pointer-events-none fixed inset-x-0 top-0 h-[360px] z-0"
-        style={{ background: 'radial-gradient(ellipse 70% 60% at 50% -10%, oklch(0.55 0.22 295 / 0.10) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(ellipse 70% 60% at 50% -10%, oklch(0.56 0.20 230 / 0.10) 0%, transparent 70%)' }}
       />
 
       <header className="relative z-30 sticky top-0 border-b border-border/60 bg-background/90 backdrop-blur-md">
@@ -112,6 +118,26 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Plus className="h-3.5 w-3.5" />
               Nouvelle instance
             </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                  <Globe className="h-4 w-4" />
+                  <span className="sr-only">Changer de langue</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => {}}>
+                  Français
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {}}>
+                  English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {}}>
+                  Deutsch
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {user && (
               <div className="flex items-center gap-1">
