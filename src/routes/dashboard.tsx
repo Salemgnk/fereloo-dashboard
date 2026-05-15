@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Plus,
   ExternalLink,
@@ -42,6 +43,7 @@ export const Route = createFileRoute('/dashboard')({
 });
 
 function DashboardPage() {
+  const { t, i18n } = useTranslation();
   const { user, loading, signIn } = useAuth();
   const { companyInfo, checklistDismissed, saveCompanyInfo, dismissChecklist } = useOnboarding(user?.id);
 
@@ -100,10 +102,10 @@ function DashboardPage() {
       {/* Greeting */}
       <div className="mb-8">
         <h1 className="font-display text-2xl font-bold tracking-tight md:text-3xl">
-          Bonjour, {user.name.split(' ')[0]} 👋
+          {t('dashboard.greeting', { name: user.name.split(' ')[0] })}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          {new Date().toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : i18n.language === 'de' ? 'de-DE' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
       </div>
 
@@ -141,6 +143,7 @@ function DashboardSkeleton() {
 }
 
 function NoTenantState() {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div className="text-center">
@@ -149,14 +152,13 @@ function NoTenantState() {
         </div>
         <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 font-mono text-xs uppercase tracking-wider text-primary">
           <span className="h-1.5 w-1.5 animate-pulse-glow rounded-full bg-primary" />
-          Bienvenue sur Fereloo
+          {t('dashboard.noTenant.badge')}
         </div>
         <h2 className="mt-4 font-display text-2xl font-bold tracking-tight md:text-3xl">
-          Provisionnez votre instance Fereloo CRM
+          {t('dashboard.noTenant.title')}
         </h2>
         <p className="mt-3 text-balance text-sm leading-relaxed text-muted-foreground">
-          Vous n'avez pas encore d'instance. Choisissez un plan et un sous-domaine — votre CRM
-          sera prêt en 90 secondes.
+          {t('dashboard.noTenant.description')}
         </p>
       </div>
 
@@ -185,15 +187,15 @@ function NoTenantState() {
       <Card className="border-primary/25 bg-card p-6 glow-primary">
         <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
           <div>
-            <h3 className="font-display text-base font-bold">Lancer le provisioning</h3>
+            <h3 className="font-display text-base font-bold">{t('dashboard.noTenant.startProvisioning')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sous-domaine, plan, déploiement automatisé en quelques clics.
+              {t('dashboard.noTenant.startProvisioningDesc')}
             </p>
           </div>
           <Button asChild className="glow-primary shrink-0">
             <Link to="/provision">
               <Rocket className="h-4 w-4" />
-              Démarrer
+              {t('dashboard.noTenant.startButton')}
             </Link>
           </Button>
         </div>
@@ -250,6 +252,7 @@ function StatTile({
 }
 
 function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
+  const { t } = useTranslation();
   const planObj = PLANS.find((p) => p.id === current.plan) ?? PLANS[0];
   const others = all.filter((t) => t.id !== current.id);
   const activeCount = all.filter((t) => t.status === 'active').length;
@@ -258,12 +261,12 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
     <div className="space-y-6">
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm text-muted-foreground">Vue d'ensemble de vos instances</p>
+          <p className="text-sm text-muted-foreground">{t('dashboard.overview.title')}</p>
         </div>
         <Button asChild variant="outline" size="sm">
           <Link to="/provision">
             <Plus className="h-3.5 w-3.5" />
-            Nouvelle instance
+            {t('nav.newInstance')}
           </Link>
         </Button>
       </div>
@@ -272,30 +275,30 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile
           icon={Layers}
-          label="Instances"
+          label={t('dashboard.stats.instances')}
           value={String(all.length)}
-          sub={`${activeCount} active${activeCount > 1 ? 's' : ''}`}
+          sub={activeCount > 1 ? t('dashboard.stats.actives', { count: activeCount }) : t('dashboard.stats.active', { count: activeCount })}
           accent="primary"
         />
         <StatTile
           icon={Users}
-          label="Plan actif"
+          label={t('dashboard.stats.plan')}
           value={planObj.name}
-          sub={`${planObj.users} utilisateurs`}
+          sub={t('dashboard.stats.users', { count: planObj.users })}
           accent="success"
         />
         <StatTile
           icon={MapPin}
-          label="Région"
+          label={t('dashboard.stats.region')}
           value={current.region.toUpperCase()}
-          sub="Hébergé en Afrique"
+          sub={t('dashboard.stats.hostedIn')}
           accent="warning"
         />
         <StatTile
           icon={HardDrive}
-          label="Stockage"
+          label={t('dashboard.stats.storage')}
           value={`${planObj.storageGb} Go`}
-          sub="Inclus dans le plan"
+          sub={t('dashboard.stats.included')}
           accent="muted"
         />
       </div>
@@ -305,14 +308,14 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
       {others.length > 0 && (
         <Card className="overflow-hidden border-border bg-card">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
-            <h2 className="text-sm font-medium">Autres instances</h2>
+            <h2 className="text-sm font-medium">{t('dashboard.overview.otherInstances')}</h2>
             <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-              {others.length} instance{others.length > 1 ? 's' : ''}
+              {others.length > 1 ? t('dashboard.overview.instanceCounts', { count: others.length }) : t('dashboard.overview.instanceCount', { count: others.length })}
             </span>
           </div>
           <div className="divide-y divide-border">
-            {others.map((t) => (
-              <TenantRow key={t.id} tenant={t} />
+            {others.map((tenant) => (
+              <TenantRow key={tenant.id} tenant={tenant} />
             ))}
           </div>
         </Card>
@@ -322,6 +325,7 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
 }
 
 function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: string }) {
+  const { t, i18n } = useTranslation();
   const isActive = tenant.status === 'active';
   const isProv = tenant.status === 'provisioning';
   const isFailed = tenant.status === 'failed';
@@ -338,7 +342,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
   });
 
   const handleDelete = () => {
-    if (window.confirm('Voulez-vous vraiment supprimer cette instance ? Toutes les données seront perdues.')) {
+    if (window.confirm(t('dashboard.actions.deleteConfirm'))) {
       setIsDeleting(true);
       deleteMutation.mutate(tenant.id);
     }
@@ -382,7 +386,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
               onClick={handleDelete}
               disabled={isDeleting}
               className="h-9 w-9 p-0 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
-              title="Supprimer l'instance"
+              title={t('dashboard.actions.deleteTooltip')}
             >
               {isDeleting ? <Activity className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
             </Button>
@@ -390,7 +394,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
               <Button asChild variant="outline" size="sm">
                 <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
                   <Activity className="h-3.5 w-3.5" />
-                  {isProv ? 'Suivre le déploiement' : "Voir l'erreur"}
+                  {isProv ? t('dashboard.actions.trackDeploy') : t('dashboard.actions.viewError')}
                 </Link>
               </Button>
             )}
@@ -399,13 +403,13 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
                 <Button asChild variant="outline" size="sm">
                   <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
                     <Activity className="h-3.5 w-3.5" />
-                    Logs
+                    {t('dashboard.actions.logs')}
                   </Link>
                 </Button>
                 <Button asChild size="sm" className="glow-primary">
                   <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-3.5 w-3.5" />
-                    Ouvrir votre CRM Fereloo
+                    {t('dashboard.actions.openCrm')}
                   </a>
                 </Button>
               </>
@@ -416,14 +420,14 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
         {isProv && (
           <div className="mt-5 flex items-center gap-2.5 rounded-lg border border-primary/20 bg-primary/8 px-4 py-3 text-sm text-primary">
             <Sparkles className="h-4 w-4 shrink-0 animate-pulse" />
-            Provisioning en cours — accédez aux logs pour suivre en temps réel.
+            {t('dashboard.status.provisioningMsg')}
           </div>
         )}
 
         {isFailed && (
           <div className="mt-5 flex items-center gap-2.5 rounded-lg border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
             <Activity className="h-4 w-4 shrink-0" />
-            Le déploiement a échoué — consultez les logs pour le détail.
+            {t('dashboard.status.failedMsg')}
           </div>
         )}
       </div>
@@ -431,20 +435,20 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
       <div className="border-t border-border/50 bg-secondary/20 px-6 py-3">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 font-mono text-[11px] text-muted-foreground">
           <span>
-            Plan <span className="text-foreground font-medium">{planLabel}</span>
+            {t('dashboard.status.plan')} <span className="text-foreground font-medium">{planLabel}</span>
           </span>
           <span className="text-border" aria-hidden>·</span>
           <span>
-            Région <span className="text-foreground font-medium uppercase">{tenant.region}</span>
+            {t('dashboard.status.region')} <span className="text-foreground font-medium uppercase">{tenant.region}</span>
           </span>
           <span className="text-border" aria-hidden>·</span>
           <span>
-            Créé le{' '}
-            <span className="text-foreground font-medium">
-              {new Date(tenant.createdAt).toLocaleDateString('fr-FR', {
-                day: 'numeric', month: 'long', year: 'numeric',
-              })}
-            </span>
+            {t('dashboard.status.createdAt', {
+              date: new Date(tenant.createdAt).toLocaleDateString(
+                i18n.language === 'fr' ? 'fr-FR' : i18n.language === 'de' ? 'de-DE' : 'en-US',
+                { day: 'numeric', month: 'long', year: 'numeric' }
+              )
+            })}
           </span>
         </div>
       </div>
@@ -453,6 +457,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
 }
 
 function TenantRow({ tenant }: { tenant: Tenant }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-3 px-5 py-4 transition-colors hover:bg-accent/30 sm:flex-row sm:items-center sm:gap-4">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border bg-secondary font-mono text-xs font-bold uppercase text-muted-foreground">
@@ -474,7 +479,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
           <Button asChild size="sm" variant="outline">
             <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
               <Activity className="h-3.5 w-3.5" />
-              Suivre
+              {t('dashboard.actions.track')}
             </Link>
           </Button>
         )}
@@ -482,7 +487,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
           <Button asChild size="sm" variant="outline">
             <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-3.5 w-3.5" />
-              Ouvrir
+              {t('dashboard.actions.open')}
             </a>
           </Button>
         )}
