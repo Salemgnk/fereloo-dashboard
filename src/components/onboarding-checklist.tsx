@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Check, ArrowRight, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Tenant } from '@/lib/types';
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function OnboardingChecklist({ companyDone, tenants, onDismiss }: Props) {
+  const { t } = useTranslation();
   const hasInstance = tenants.length > 0;
   const isActive = tenants.some((t) => t.status === 'active');
   const activeUrl = tenants.find((t) => t.status === 'active')?.url;
@@ -26,31 +28,31 @@ export function OnboardingChecklist({ companyDone, tenants, onDismiss }: Props) 
   const steps: Step[] = [
     {
       id: 'account',
-      label: 'Créer un compte',
-      description: 'Inscription et connexion à Fereloo.',
+      label: t('checklist.steps.account.label'),
+      description: t('checklist.steps.account.description'),
       done: true,
     },
     {
       id: 'company',
-      label: 'Renseigner votre entreprise',
-      description: "Nom et secteur d'activité.",
+      label: t('checklist.steps.company.label'),
+      description: t('checklist.steps.company.description'),
       done: companyDone,
     },
     {
       id: 'instance',
-      label: 'Déployer une instance CRM',
-      description: 'Lancer votre environnement Fereloo CRM.',
+      label: t('checklist.steps.instance.label'),
+      description: t('checklist.steps.instance.description'),
       done: hasInstance,
-      action: !hasInstance ? { label: 'Déployer', href: '/provision' } : undefined,
+      action: !hasInstance ? { label: t('checklist.steps.instance.action'), href: '/provision' } : undefined,
     },
     {
       id: 'access',
-      label: 'Accéder à votre CRM',
-      description: 'Se connecter et créer vos premiers contacts.',
+      label: t('checklist.steps.access.label'),
+      description: t('checklist.steps.access.description'),
       done: isActive,
       action:
         isActive && activeUrl
-          ? { label: 'Ouvrir le CRM', href: activeUrl, external: true }
+          ? { label: t('checklist.steps.access.action'), href: activeUrl, external: true }
           : undefined,
     },
   ];
@@ -66,13 +68,12 @@ export function OnboardingChecklist({ companyDone, tenants, onDismiss }: Props) 
         <div className="flex items-center gap-4">
           <div className="space-y-1">
             <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Mise en route
+              {t('checklist.title')}
             </div>
             <div className="text-sm font-bold">
-              {allDone ? 'Configuration terminée !' : `${doneCount} / ${steps.length} étapes complétées`}
+              {allDone ? t('checklist.allDone') : t('checklist.progress', { done: doneCount, total: steps.length })}
             </div>
           </div>
-          {/* Progress bar */}
           <div className="hidden sm:flex items-center gap-2">
             <div className="h-1.5 w-32 rounded-full bg-secondary overflow-hidden">
               <div
@@ -92,7 +93,7 @@ export function OnboardingChecklist({ companyDone, tenants, onDismiss }: Props) 
             size="icon"
             onClick={onDismiss}
             className="h-8 w-8 rounded-[2px] text-muted-foreground hover:text-foreground"
-            title="Masquer"
+            title={t('checklist.hide')}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -117,7 +118,6 @@ function StepRow({ step, index }: { step: Step & { action?: { label: string; hre
         step.done ? 'opacity-50' : 'hover:bg-secondary/20',
       )}
     >
-      {/* Icon */}
       <div
         className={cn(
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] border font-mono text-[11px] font-bold transition-colors',
@@ -129,7 +129,6 @@ function StepRow({ step, index }: { step: Step & { action?: { label: string; hre
         {step.done ? <Check className="h-4 w-4" strokeWidth={2.5} /> : index}
       </div>
 
-      {/* Text */}
       <div className="min-w-0 flex-1">
         <div className={cn('text-sm font-bold', step.done && 'line-through decoration-foreground/30')}>
           {step.label}
@@ -139,7 +138,6 @@ function StepRow({ step, index }: { step: Step & { action?: { label: string; hre
         </div>
       </div>
 
-      {/* CTA */}
       {step.action && !step.done && (
         step.action.external ? (
           <a

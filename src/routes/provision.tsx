@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, useRouter, Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   Check,
@@ -62,6 +63,7 @@ function ProvisionPage() {
 }
 
 function ProvisionForm() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [subdomain, setSubdomain] = useState('');
@@ -78,11 +80,11 @@ function ProvisionForm() {
       return;
     }
     setCheck('checking');
-    const t = setTimeout(async () => {
+    const timer = setTimeout(async () => {
       const ok = await checkSubdomainAvailable(subdomain);
       setCheck(ok ? 'available' : 'taken');
     }, 400);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [subdomain]);
 
   const provision = useMutation({
@@ -103,14 +105,14 @@ function ProvisionForm() {
         <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
           <Link to="/dashboard">
             <ArrowLeft className="h-4 w-4" />
-            Retour au tableau de bord
+            {t('provision.backToDashboard')}
           </Link>
         </Button>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          Créer votre CRM Fereloo
+          {t('provision.title')}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Choisissez votre adresse et votre formule. Votre CRM est prêt en quelques minutes.
+          {t('provision.subtitle')}
         </p>
       </div>
 
@@ -123,34 +125,32 @@ function ProvisionForm() {
               <Globe className="h-3.5 w-3.5" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold">Adresse de votre CRM</h2>
-              <p className="font-mono text-[10px] text-muted-foreground">L'URL de votre espace Fereloo</p>
+              <h2 className="text-sm font-semibold">{t('provision.subdomain.sectionTitle')}</h2>
+              <p className="font-mono text-[10px] text-muted-foreground">{t('provision.subdomain.sectionDesc')}</p>
             </div>
           </div>
 
           <Label htmlFor="subdomain" className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-            Nom de votre espace
+            {t('provision.subdomain.label')}
           </Label>
           <div className="flex items-stretch overflow-hidden rounded-lg border border-input bg-background shadow-sm focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
             <Input
               id="subdomain"
               value={subdomain}
               onChange={(e) => setSubdomain(e.target.value.toLowerCase())}
-              placeholder="ma-boutique"
+              placeholder={t('provision.subdomain.placeholder')}
               maxLength={30}
               className="h-11 border-0 bg-transparent font-mono shadow-none focus-visible:ring-0"
               autoFocus
               disabled={provision.isPending}
             />
             <div className="flex items-center border-l border-border bg-secondary/60 px-3 font-mono text-sm text-muted-foreground shrink-0">
-              .fereloo.com
+              {t('provision.subdomain.suffix')}
             </div>
           </div>
 
-          {/* Status message */}
           <SubdomainStatus state={check} />
 
-          {/* Live URL preview */}
           {subdomain && check !== 'invalid' && (
             <div className="flex items-center gap-2 rounded-md bg-secondary/40 px-3 py-2 font-mono text-xs text-muted-foreground">
               <Globe className="h-3 w-3 shrink-0" />
@@ -159,15 +159,15 @@ function ProvisionForm() {
                 <span className={cn(
                   check === 'available' ? 'text-success' : check === 'taken' ? 'text-destructive' : 'text-foreground'
                 )}>
-                  {subdomain || 'votre-nom'}
+                  {subdomain || t('provision.subdomain.placeholder')}
                 </span>
-                .fereloo.com
+                {t('provision.subdomain.suffix')}
               </span>
             </div>
           )}
 
           <p className="font-mono text-[11px] text-muted-foreground/70">
-            Lettres minuscules, chiffres, tirets uniquement · 3 à 30 caractères
+            {t('provision.subdomain.hint')}
           </p>
         </div>
 
@@ -178,13 +178,13 @@ function ProvisionForm() {
               <Sparkles className="h-3.5 w-3.5" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold">Formule</h2>
-              <p className="font-mono text-[10px] text-muted-foreground">Choisissez votre plan</p>
+              <h2 className="text-sm font-semibold">{t('provision.plan.sectionTitle')}</h2>
+              <p className="font-mono text-[10px] text-muted-foreground">{t('provision.plan.sectionDesc')}</p>
             </div>
           </div>
 
           <Label className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-            Plan
+            {t('provision.plan.label')}
           </Label>
           <div className="grid gap-3 md:grid-cols-3">
             {PLANS.map((p) => {
@@ -205,7 +205,7 @@ function ProvisionForm() {
                   {p.highlighted && (
                     <span className="absolute -top-2.5 right-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-primary-foreground shadow-sm shadow-primary/20">
                       <Sparkles className="h-2.5 w-2.5" />
-                      Populaire
+                      {t('provision.plan.popular')}
                     </span>
                   )}
 
@@ -244,14 +244,13 @@ function ProvisionForm() {
           </div>
         </div>
 
-        {/* Error */}
         {provision.isError && (
           <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium">La création de votre CRM a échoué</p>
+              <p className="font-medium">{t('provision.error.title')}</p>
               <p className="mt-0.5 text-destructive/80">
-                {provision.error instanceof Error ? provision.error.message : 'Réessayez dans quelques instants.'}
+                {provision.error instanceof Error ? provision.error.message : t('provision.error.retry')}
               </p>
             </div>
           </div>
@@ -263,16 +262,12 @@ function ProvisionForm() {
             {check === 'available' ? (
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle2 className="h-4 w-4" />
-                <span>
-                  Votre CRM sera accessible sur{' '}
-                  <span className="font-mono font-medium">{subdomain}.fereloo.com</span>
-                  {' '}— {selectedPlan.name}
-                </span>
+                <span>{t('provision.summary.ready', { subdomain, plan: selectedPlan.name })}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                <span>Remplissez les champs ci-dessus pour continuer</span>
+                <span>{t('provision.summary.fillFields')}</span>
               </div>
             )}
           </div>
@@ -284,12 +279,12 @@ function ProvisionForm() {
             {provision.isPending ? (
               <>
                 <ProvisioningSpinner size="xs" />
-                Création en cours…
+                {t('provision.submit.pending')}
               </>
             ) : (
               <>
                 <Rocket className="h-4 w-4" />
-                Confirmer et créer votre CRM Fereloo
+                {t('provision.submit.confirm')}
               </>
             )}
           </Button>
@@ -301,36 +296,37 @@ function ProvisionForm() {
 }
 
 function SubdomainStatus({ state }: { state: SubdomainCheck }) {
+  const { t } = useTranslation();
   if (state === 'idle') return null;
 
-  const config: Record<Exclude<SubdomainCheck, 'idle'>, { msg: string; icon: React.ReactNode; cls: string }> = {
+  const config: Record<Exclude<SubdomainCheck, 'idle'>, { key: string; icon: React.ReactNode; cls: string }> = {
     checking: {
-      msg: 'Vérification de la disponibilité…',
+      key: 'provision.subdomainStatus.checking',
       icon: <ProvisioningSpinner size="xs" className="text-muted-foreground" />,
       cls: 'text-muted-foreground',
     },
     available: {
-      msg: 'Sous-domaine disponible',
+      key: 'provision.subdomainStatus.available',
       icon: <CheckCircle2 className="h-3.5 w-3.5" />,
       cls: 'text-success',
     },
     taken: {
-      msg: 'Sous-domaine déjà pris',
+      key: 'provision.subdomainStatus.taken',
       icon: <XCircle className="h-3.5 w-3.5" />,
       cls: 'text-destructive',
     },
     invalid: {
-      msg: 'Format invalide — 3-30 caractères, [a-z0-9-] uniquement, sans tiret en début/fin',
+      key: 'provision.subdomainStatus.invalid',
       icon: <XCircle className="h-3.5 w-3.5" />,
       cls: 'text-destructive',
     },
   };
 
-  const { msg, icon, cls } = config[state];
+  const { key, icon, cls } = config[state];
   return (
     <p className={cn('flex items-center gap-1.5 font-mono text-xs', cls)}>
       {icon}
-      {msg}
+      {t(key)}
     </p>
   );
 }

@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter, Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, ExternalLink, XCircle, RefreshCw } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
@@ -19,18 +20,9 @@ export const Route = createFileRoute('/status/$tenantId')({
   component: StatusPage,
 });
 
-const TIPS = [
-  "Votre base de données est isolée — aucune ressource partagée avec d'autres clients.",
-  "Un certificat SSL est automatiquement généré pour sécuriser votre accès.",
-  "Votre instance Redis dédiée garantit des performances optimales.",
-  "L'installation complète prend en moyenne 3 à 5 minutes.",
-  "Vos données sont hébergées en Afrique de l'Ouest pour une latence minimale.",
-  "Vous recevrez un accès administrateur complet à votre CRM Fereloo.",
-  "Chaque instance est déployée dans un environnement Docker isolé.",
-  "Votre CRM sera accessible 24h/24 avec une disponibilité garantie de 99,9 %.",
-];
-
 function useTips() {
+  const { t } = useTranslation();
+  const tips = t('statusPage.tips', { returnObjects: true }) as string[];
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
@@ -38,14 +30,14 @@ function useTips() {
     const interval = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
-        setIndex((i) => (i + 1) % TIPS.length);
+        setIndex((i) => (i + 1) % tips.length);
         setVisible(true);
       }, 400);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tips.length]);
 
-  return { tip: TIPS[index], visible };
+  return { tip: tips[index], visible };
 }
 
 function useTenantStatusStream(tenantId: string) {
@@ -89,6 +81,7 @@ function StatusPage() {
 }
 
 function StatusView() {
+  const { t } = useTranslation();
   const { tenantId } = Route.useParams();
   const { data, isLoading, isError } = useTenantStatusStream(tenantId);
   const { tip, visible } = useTips();
@@ -98,7 +91,7 @@ function StatusView() {
       <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 text-center">
         <ProvisioningSpinner size="lg" />
         <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground/40 animate-pulse">
-          Connexion…
+          {t('statusPage.loading')}
         </p>
       </div>
     );
@@ -109,11 +102,11 @@ function StatusView() {
       <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 text-center">
         <XCircle className="h-12 w-12 text-destructive/60" />
         <div className="space-y-2">
-          <p className="font-display text-lg font-bold">Instance introuvable</p>
-          <p className="text-sm text-muted-foreground">Cette instance n'existe pas ou a été supprimée.</p>
+          <p className="font-display text-lg font-bold">{t('statusPage.notFound.title')}</p>
+          <p className="text-sm text-muted-foreground">{t('statusPage.notFound.desc')}</p>
         </div>
         <Button asChild variant="outline">
-          <Link to="/">Retour au tableau de bord</Link>
+          <Link to="/">{t('statusPage.notFound.back')}</Link>
         </Button>
       </div>
     );
@@ -122,7 +115,6 @@ function StatusView() {
   const { tenant, progress, errorMessage } = data;
   const isReady = tenant.status === 'active';
   const isFailed = tenant.status === 'failed';
-  const isProvisioning = !isReady && !isFailed;
 
   if (isReady) {
     return (
@@ -131,21 +123,22 @@ function StatusView() {
           <CheckCircle2 className="h-9 w-9 text-success" />
         </div>
         <div className="space-y-2">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-success/70">Déploiement terminé</p>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Votre CRM est prêt.</h1>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-success/70">
+            {t('statusPage.ready.badge')}
+          </p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t('statusPage.ready.title')}</h1>
           <p className="text-sm text-muted-foreground">
-            Accessible sur{' '}
-            <span className="font-mono text-foreground">{tenant.subdomain}.fereloo.com</span>
+            {t('statusPage.ready.subtitle', { subdomain: tenant.subdomain })}
           </p>
         </div>
         <Button asChild size="lg" className="glow-primary h-12 px-8 font-bold text-xs uppercase tracking-widest">
           <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-4 w-4" />
-            Ouvrir votre CRM Fereloo
+            {t('statusPage.ready.openCrm')}
           </a>
         </Button>
         <Link to="/" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">
-          Retour au tableau de bord
+          {t('statusPage.ready.back')}
         </Link>
       </div>
     );
@@ -158,8 +151,10 @@ function StatusView() {
           <XCircle className="h-9 w-9 text-destructive" />
         </div>
         <div className="space-y-2">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-destructive/70">Échec du déploiement</p>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Une erreur s'est produite.</h1>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-destructive/70">
+            {t('statusPage.failed.badge')}
+          </p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t('statusPage.failed.title')}</h1>
           {errorMessage && (
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">{errorMessage}</p>
           )}
@@ -167,11 +162,11 @@ function StatusView() {
         <Button asChild variant="outline" className="h-11 px-6 font-bold text-xs uppercase tracking-widest">
           <Link to="/provision">
             <RefreshCw className="h-4 w-4" />
-            Relancer le déploiement
+            {t('statusPage.failed.retry')}
           </Link>
         </Button>
         <Link to="/" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">
-          Retour au tableau de bord
+          {t('statusPage.failed.back')}
         </Link>
       </div>
     );
@@ -180,20 +175,17 @@ function StatusView() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center gap-10 text-center">
 
-      {/* Spinner */}
       <ProvisioningSpinner size="lg" />
 
-      {/* Title */}
       <div className="space-y-2">
         <p className="font-mono text-[10px] uppercase tracking-widest text-primary/60">
-          Déploiement en cours
+          {t('statusPage.provisioning.badge')}
         </p>
         <h1 className="font-display text-2xl font-bold tracking-tight">
           {tenant.subdomain}<span className="text-muted-foreground/30">.fereloo.com</span>
         </h1>
       </div>
 
-      {/* Progress bar */}
       <div className="w-full max-w-xs space-y-2">
         <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
           <div
@@ -206,7 +198,6 @@ function StatusView() {
         </p>
       </div>
 
-      {/* Rotating tip */}
       <div className="max-w-sm px-4">
         <p
           className={cn(
@@ -218,11 +209,10 @@ function StatusView() {
         </p>
       </div>
 
-      {/* Live indicator */}
       <div className="flex items-center gap-2">
         <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-glow" />
         <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40">
-          En direct
+          {t('statusPage.provisioning.live')}
         </span>
       </div>
 
