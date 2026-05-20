@@ -132,10 +132,10 @@ function StatusView() {
           </p>
         </div>
         <Button asChild size="lg" className="glow-primary h-12 px-8 font-bold text-xs uppercase tracking-widest">
-          <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
+          <Link to="/crm/$tenantId" params={{ tenantId }}>
             <ExternalLink className="h-4 w-4" />
             {t('statusPage.ready.openCrm')}
-          </a>
+          </Link>
         </Button>
         <Link to="/" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">
           {t('statusPage.ready.back')}

@@ -407,10 +407,10 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
                   </Link>
                 </Button>
                 <Button asChild size="sm" className="glow-primary">
-                  <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
+                  <Link to="/crm/$tenantId" params={{ tenantId: tenant.id }}>
                     <ExternalLink className="h-3.5 w-3.5" />
                     {t('dashboard.actions.openCrm')}
-                  </a>
+                  </Link>
                 </Button>
               </>
             )}
@@ -485,10 +485,10 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
         )}
         {tenant.status === 'active' && (
           <Button asChild size="sm" variant="outline">
-            <a href={tenant.wizardUrl ?? tenant.url} target="_blank" rel="noopener noreferrer">
+            <Link to="/crm/$tenantId" params={{ tenantId: tenant.id }}>
               <ExternalLink className="h-3.5 w-3.5" />
               {t('dashboard.actions.open')}
-            </a>
+            </Link>
           </Button>
         )}
       </div>
