@@ -13,7 +13,6 @@ import { Route as ProvisionRouteImport } from './routes/provision'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatusTenantIdRouteImport } from './routes/status.$tenantId'
-import { Route as CrmTenantIdRouteImport } from './routes/crm.$tenantId'
 
 const ProvisionRoute = ProvisionRouteImport.update({
   id: '/provision',
@@ -35,25 +34,18 @@ const StatusTenantIdRoute = StatusTenantIdRouteImport.update({
   path: '/status/$tenantId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CrmTenantIdRoute = CrmTenantIdRouteImport.update({
-  id: '/crm/$tenantId',
-  path: '/crm/$tenantId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/provision': typeof ProvisionRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
-  '/crm/$tenantId': typeof CrmTenantIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/provision': typeof ProvisionRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
-  '/crm/$tenantId': typeof CrmTenantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,14 +53,13 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/provision': typeof ProvisionRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
-  '/crm/$tenantId': typeof CrmTenantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/provision' | '/status/$tenantId' | '/crm/$tenantId'
+  fullPaths: '/' | '/dashboard' | '/provision' | '/status/$tenantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/provision' | '/status/$tenantId' | '/crm/$tenantId'
-  id: '__root__' | '/' | '/dashboard' | '/provision' | '/status/$tenantId' | '/crm/$tenantId'
+  to: '/' | '/dashboard' | '/provision' | '/status/$tenantId'
+  id: '__root__' | '/' | '/dashboard' | '/provision' | '/status/$tenantId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,7 +67,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ProvisionRoute: typeof ProvisionRoute
   StatusTenantIdRoute: typeof StatusTenantIdRoute
-  CrmTenantIdRoute: typeof CrmTenantIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -109,13 +99,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatusTenantIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/crm/$tenantId': {
-      id: '/crm/$tenantId'
-      path: '/crm/$tenantId'
-      fullPath: '/crm/$tenantId'
-      preLoaderRoute: typeof CrmTenantIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -124,7 +107,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ProvisionRoute: ProvisionRoute,
   StatusTenantIdRoute: StatusTenantIdRoute,
-  CrmTenantIdRoute: CrmTenantIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -201,11 +201,6 @@ const resources = {
         "Restauration & Hôtellerie": "Restauration & Hôtellerie",
         "Autre": "Autre",
       },
-      crm: {
-        backToDashboard: "Tableau de bord",
-        openExternal: "Ouvrir dans un onglet",
-        notAvailable: "Cette instance n'est pas encore active.",
-      },
       notFound: {
         desc: "La page que vous cherchez n'existe pas ou a été déplacée.",
         backHome: "Retour à l'accueil",
@@ -410,11 +405,6 @@ const resources = {
         "Restauration & Hôtellerie": "Food & Hospitality",
         "Autre": "Other",
       },
-      crm: {
-        backToDashboard: "Dashboard",
-        openExternal: "Open in new tab",
-        notAvailable: "This instance is not active yet.",
-      },
       notFound: {
         desc: "The page you're looking for doesn't exist or has been moved.",
         backHome: "Back to home",
@@ -618,11 +608,6 @@ const resources = {
         "Logistique & Transport": "Logistik & Transport",
         "Restauration & Hôtellerie": "Gastronomie & Hotellerie",
         "Autre": "Sonstiges",
-      },
-      crm: {
-        backToDashboard: "Dashboard",
-        openExternal: "In neuem Tab öffnen",
-        notAvailable: "Diese Instanz ist noch nicht aktiv.",
       },
       notFound: {
         desc: "Die gesuchte Seite existiert nicht oder wurde verschoben.",
