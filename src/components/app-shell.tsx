@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { ReactNode } from 'react';
-import { LayoutDashboard, Plus, LogOut, Zap, Globe } from 'lucide-react';
+import { LayoutDashboard, Plus, LogOut, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/use-auth';
 import { Button } from '@/components/ui/button';
@@ -78,9 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm shadow-primary/20">
-                <Zap className="h-3.5 w-3.5" strokeWidth={2.5} />
-              </span>
+              <img src="/fereloo-logo.png" alt="Fereloo" className="h-7 w-7 rounded-md object-cover" />
               <span className="font-display font-bold tracking-tight">Fereloo</span>
               <span className="hidden rounded border border-border bg-secondary px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground sm:inline">
                 console

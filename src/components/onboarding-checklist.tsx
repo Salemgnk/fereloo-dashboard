@@ -22,8 +22,8 @@ interface Props {
 export function OnboardingChecklist({ companyDone, tenants, onDismiss }: Props) {
   const { t } = useTranslation();
   const hasInstance = tenants.length > 0;
-  const isActive = tenants.some((t) => t.status === 'active');
-  const activeUrl = tenants.find((t) => t.status === 'active')?.url;
+  const isActive = tenants.some((tenant) => tenant.status === 'active');
+  const activeUrl = tenants.find((tenant) => tenant.status === 'active')?.url;
 
   const steps: Step[] = [
     {
