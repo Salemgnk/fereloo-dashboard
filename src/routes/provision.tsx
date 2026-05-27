@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { ProvisioningSpinner } from '@/components/provisioning-spinner';
 import { useAuth } from '@/lib/use-auth';
 import { checkSubdomainAvailable, provisionTenant } from '@/lib/api';
-import { PLANS, type PlanId } from '@/lib/types';
+import { PLANS, type PlanId, type BillingPeriod } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/provision')({
@@ -68,6 +68,7 @@ function ProvisionForm() {
   const queryClient = useQueryClient();
   const [subdomain, setSubdomain] = useState('');
   const [plan, setPlan] = useState<PlanId>('pro');
+  const [billing, setBilling] = useState<BillingPeriod>('monthly');
   const [check, setCheck] = useState<SubdomainCheck>('idle');
 
   useEffect(() => {
@@ -96,8 +97,8 @@ function ProvisionForm() {
     },
   });
 
-  const canSubmit = check === 'available' && !provision.isPending;
   const selectedPlan = PLANS.find((p) => p.id === plan)!;
+  const canSubmit = check === 'available' && !provision.isPending && !selectedPlan.contactSales;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -183,12 +184,39 @@ function ProvisionForm() {
             </div>
           </div>
 
-          <Label className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-            {t('provision.plan.label')}
-          </Label>
+          {/* Billing toggle */}
+          <div className="flex items-center gap-1 self-start rounded-lg border border-border bg-secondary/40 p-1">
+            <button
+              type="button"
+              onClick={() => setBilling('monthly')}
+              className={cn(
+                'rounded-md px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-all',
+                billing === 'monthly'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Mensuel
+            </button>
+            <button
+              type="button"
+              onClick={() => setBilling('annual')}
+              className={cn(
+                'flex items-center gap-1.5 rounded-md px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-all',
+                billing === 'annual'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Annuel
+              <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold text-primary">-20%</span>
+            </button>
+          </div>
+
           <div className="grid gap-3 md:grid-cols-3">
             {PLANS.map((p) => {
               const selected = plan === p.id;
+              const displayPrice = billing === 'annual' && p.priceFcfaAnnual ? p.priceFcfaAnnual : p.priceFcfa;
               return (
                 <button
                   key={p.id}
@@ -219,19 +247,35 @@ function ProvisionForm() {
                     </div>
                   </div>
 
+                  <p className="mt-1 font-mono text-[10px] text-muted-foreground/70">{p.description}</p>
+
                   <div className="mt-3 flex items-baseline gap-1">
-                    <span className="font-display text-2xl font-bold">
-                      {p.priceFcfa.toLocaleString('fr-FR')}
-                    </span>
-                    <span className="text-xs text-muted-foreground">FCFA{p.period}</span>
+                    {p.contactSales ? (
+                      <span className="font-display text-xl font-bold">Sur devis</span>
+                    ) : (
+                      <>
+                        <span className="font-display text-2xl font-bold">
+                          {displayPrice.toLocaleString('fr-FR')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">FCFA/mois</span>
+                      </>
+                    )}
                   </div>
 
-                  <div className="mt-2 font-mono text-[11px] text-muted-foreground">
-                    {p.users} utilisateurs · {p.storageGb} Go
-                  </div>
+                  {!p.contactSales && (
+                    <p className="mt-0.5 font-mono text-[10px] text-muted-foreground/60">
+                      {billing === 'annual' ? 'facturé annuellement' : 'facturé mensuellement'}
+                    </p>
+                  )}
+
+                  {!p.contactSales && (
+                    <div className="mt-2 font-mono text-[11px] text-muted-foreground">
+                      {p.users} utilisateurs
+                    </div>
+                  )}
 
                   <ul className="mt-4 space-y-1.5 text-xs text-muted-foreground">
-                    {p.features.slice(0, 3).map((f) => (
+                    {p.features.slice(0, 4).map((f) => (
                       <li key={f} className="flex items-start gap-1.5">
                         <Check className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
                         {f}
@@ -259,7 +303,12 @@ function ProvisionForm() {
         {/* Summary + submit */}
         <div className="flex flex-col gap-4 rounded-xl border border-border bg-card/40 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-muted-foreground">
-            {check === 'available' ? (
+            {selectedPlan.contactSales ? (
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span>Contactez-nous pour un devis personnalisé.</span>
+              </div>
+            ) : check === 'available' ? (
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>{t('provision.summary.ready', { subdomain, plan: selectedPlan.name })}</span>
@@ -271,23 +320,32 @@ function ProvisionForm() {
               </div>
             )}
           </div>
-          <Button
-            onClick={() => provision.mutate()}
-            disabled={!canSubmit}
-            className="glow-primary shrink-0"
-          >
-            {provision.isPending ? (
-              <>
-                <ProvisioningSpinner size="xs" />
-                {t('provision.submit.pending')}
-              </>
-            ) : (
-              <>
-                <Rocket className="h-4 w-4" />
-                {t('provision.submit.confirm')}
-              </>
-            )}
-          </Button>
+          {selectedPlan.contactSales ? (
+            <a
+              href="mailto:contact@fereloo.com"
+              className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-primary px-5 font-bold text-[11px] uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Contacter les ventes
+            </a>
+          ) : (
+            <Button
+              onClick={() => provision.mutate()}
+              disabled={!canSubmit}
+              className="glow-primary shrink-0"
+            >
+              {provision.isPending ? (
+                <>
+                  <ProvisioningSpinner size="xs" />
+                  {t('provision.submit.pending')}
+                </>
+              ) : (
+                <>
+                  <Rocket className="h-4 w-4" />
+                  {t('provision.submit.confirm')}
+                </>
+              )}
+            </Button>
+          )}
         </div>
 
       </div>

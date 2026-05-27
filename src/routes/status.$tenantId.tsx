@@ -13,8 +13,8 @@ import { cn } from '@/lib/utils';
 export const Route = createFileRoute('/status/$tenantId')({
   head: () => ({
     meta: [
-      { title: 'Déploiement en cours — Fereloo' },
-      { name: 'description', content: 'Votre CRM Fereloo est en cours de déploiement.' },
+      { title: 'Création en cours — Fereloo' },
+      { name: 'description', content: 'Votre CRM Fereloo est en cours de création.' },
     ],
   }),
   component: StatusPage,

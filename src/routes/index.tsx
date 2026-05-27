@@ -34,7 +34,7 @@ export const Route = createFileRoute('/')({
       { title: 'Tableau de bord — Fereloo' },
       {
         name: 'description',
-        content: 'Vos instances Fereloo CRM provisionnées sur Fereloo : statut, plan et accès direct.',
+        content: 'Vos CRM Fereloo : statut, plan et accès direct.',
       },
     ],
   }),
@@ -138,7 +138,7 @@ function NoTenantState() {
           Prêt à démarrer ?
         </h2>
         <p className="mt-4 text-balance text-sm leading-relaxed text-muted-foreground font-medium">
-          Vous n'avez pas encore d'instance active. Déployez votre environnement de gestion en moins de 3 minutes.
+          Vous n'avez pas encore de CRM actif. Créez votre espace Fereloo en moins de 3 minutes.
         </p>
       </div>
 
@@ -166,7 +166,7 @@ function NoTenantState() {
 
       <div className="border border-foreground/10 bg-card p-8 rounded-xl flex flex-col items-center justify-center gap-6 text-center">
         <div>
-          <h3 className="font-display text-lg font-bold">Lancer le déploiement</h3>
+          <h3 className="font-display text-lg font-bold">Créer votre CRM</h3>
           <p className="mt-2 text-sm text-muted-foreground font-medium">
             Choisissez votre nom de domaine et lancez l'installation automatique.
           </p>
@@ -226,7 +226,7 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
         <Button asChild variant="outline" size="sm" className="h-8 px-4 rounded-xl font-bold text-[10px] uppercase tracking-widest border-border hover:border-foreground">
           <Link to="/provision">
             <Plus className="h-3.5 w-3.5 mr-2" />
-            Nouvelle instance
+            Nouveau CRM
           </Link>
         </Button>
       </div>
@@ -235,7 +235,7 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
           icon={Layers}
-          label="Instances"
+          label="CRM"
           value={String(all.length)}
           sub={`${activeCount} active${activeCount > 1 ? 's' : ''}`}
         />
@@ -264,9 +264,9 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
       {others.length > 0 && (
         <div className="mt-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Autres instances</h2>
+            <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Autres CRM</h2>
             <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40">
-              {others.length} instance{others.length > 1 ? 's' : ''}
+              {others.length} CRM
             </span>
           </div>
           <div className="border border-border divide-y divide-border rounded-xl overflow-hidden transition-all hover:border-primary/30">
@@ -297,7 +297,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
   });
 
   const handleDelete = () => {
-    if (window.confirm("Voulez-vous vraiment supprimer cette instance ? Toutes les données seront perdues.")) {
+    if (window.confirm("Voulez-vous vraiment supprimer ce CRM ? Toutes les données seront perdues.")) {
       setIsDeleting(true);
       deleteMutation.mutate(tenant.id);
     }
@@ -334,7 +334,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
               onClick={handleDelete}
               disabled={isDeleting}
               className="h-9 w-9 p-0 rounded-xl border-border hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
-              title="Supprimer l'instance"
+              title="Supprimer ce CRM"
             >
               {isDeleting ? <Activity className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
             </Button>
@@ -343,7 +343,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
               <Button asChild variant="outline" size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-widest border-border">
                 <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
                   <Activity className="h-3.5 w-3.5 mr-2" />
-                  {isProv ? 'Suivre l\'installation' : "Détails erreur"}
+                  {isProv ? 'Suivre la création' : "Détails erreur"}
                 </Link>
               </Button>
             )}
@@ -368,7 +368,7 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
         {isFailed && (
           <div className="mt-8 flex items-center gap-4 rounded-xl border border-destructive/20 bg-destructive/5 px-6 py-4 text-xs font-bold uppercase tracking-widest text-destructive">
             <Activity className="h-4 w-4" />
-            Échec du déploiement. Veuillez consulter les logs pour plus de détails.
+            Échec de la création. Veuillez consulter les logs pour plus de détails.
           </div>
         )}
       </div>
@@ -408,7 +408,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
   });
 
   const handleDelete = () => {
-    if (window.confirm("Voulez-vous vraiment supprimer cette instance ?")) {
+    if (window.confirm("Voulez-vous vraiment supprimer ce CRM ?")) {
       setIsDeleting(true);
       deleteMutation.mutate(tenant.id);
     }

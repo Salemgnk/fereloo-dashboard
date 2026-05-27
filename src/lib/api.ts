@@ -224,7 +224,7 @@ function _buildTenantStatusResponse(
 
   const errorMessage =
     raw.status === 'failed'
-      ? 'Le déploiement a échoué — consultez les logs pour le détail.'
+      ? 'La création a échoué — consultez les logs pour le détail.'
       : undefined;
 
   return { tenant, progress: raw.progress, steps, logs, errorMessage };

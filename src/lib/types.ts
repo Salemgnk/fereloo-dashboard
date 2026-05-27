@@ -1,5 +1,6 @@
 export type TenantStatus = 'provisioning' | 'active' | 'failed' | 'suspended';
 export type PlanId = 'basic' | 'pro' | 'enterprise';
+export type BillingPeriod = 'monthly' | 'annual';
 
 /** The 4 fixed Fereloo CRM provisioning steps. */
 export type ProvisioningStepKey = 'mariadb' | 'redis' | 'app' | 'domain';
@@ -15,12 +16,15 @@ export interface ProvisioningStep {
 export interface Plan {
   id: PlanId;
   name: string;
+  description: string;
   priceFcfa: number;
+  priceFcfaAnnual?: number;
   period: string;
   users: number;
   storageGb: number;
   features: string[];
   highlighted?: boolean;
+  contactSales?: boolean;
 }
 
 export interface Tenant {
@@ -50,7 +54,7 @@ export interface TenantStatusResponse {
 }
 
 export const PROVISIONING_STEP_DEFS: Array<Pick<ProvisioningStep, 'key' | 'label' | 'description'>> = [
-  { key: 'mariadb', label: 'MariaDB', description: 'Base de données dédiée à votre instance.' },
+  { key: 'mariadb', label: 'MariaDB', description: 'Base de données dédiée à votre CRM.' },
   { key: 'redis', label: 'Redis', description: 'Cache & file de jobs en arrière-plan.' },
   { key: 'app', label: 'Fereloo CRM', description: 'Conteneur applicatif et migrations initiales.' },
   { key: 'domain', label: 'Domaine TLS', description: 'Sous-domaine + certificat Let\'s Encrypt.' },
@@ -59,51 +63,60 @@ export const PROVISIONING_STEP_DEFS: Array<Pick<ProvisioningStep, 'key' | 'label
 export const PLANS: Plan[] = [
   {
     id: 'basic',
-    name: 'Basic',
-    priceFcfa: 9990,
+    name: 'Starter',
+    description: 'Freelances, coachs et solo-entrepreneurs',
+    priceFcfa: 6500,
+    priceFcfaAnnual: 5200,
     period: '/mois',
-    users: 5,
+    users: 2,
     storageGb: 10,
     features: [
-      "Jusqu'à 5 commerciaux",
-      'Suivi clients & opportunités',
-      'Tableau de bord des ventes',
-      'Adresse web dédiée à votre entreprise',
-      'Sauvegardes automatiques quotidiennes',
+      'CRM essentiel',
+      'Gestion des contacts',
+      'Pipeline commercial de base',
+      'Intégration WhatsApp',
+      'Analytics de base',
       'Support par email',
     ],
   },
   {
     id: 'pro',
-    name: 'Pro',
-    priceFcfa: 49990,
+    name: 'Business',
+    description: 'PME, agences et startups en croissance',
+    priceFcfa: 20900,
+    priceFcfaAnnual: 16720,
     period: '/mois',
-    users: 20,
-    storageGb: 100,
+    users: 7,
+    storageGb: 50,
     highlighted: true,
     features: [
-      "Jusqu'à 20 commerciaux",
-      'Votre propre nom de domaine',
-      'Sauvegardes toutes les heures',
-      'Relances WhatsApp & SMS automatiques',
-      'Encaissements Wave & Mobile Money',
-      'Support prioritaire 6j/7',
+      'Pipeline avancé',
+      'Intégration emails',
+      "Accompagnement à l'onboarding",
+      "Gestion d'équipe",
+      'Intégrations avancées',
+      'Support prioritaire',
+      'Gestion de la facturation',
     ],
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    priceFcfa: 249990,
-    period: '/mois',
-    users: 100,
-    storageGb: 500,
+    description: 'Grandes équipes et organisations',
+    priceFcfa: 0,
+    period: '',
+    users: 0,
+    storageGb: 0,
+    contactSales: true,
     features: [
-      'Équipes de 100 commerciaux et plus',
-      'Disponibilité garantie 99,95 %',
-      'Hébergement dédié en Afrique',
-      'Connexion unique (SSO) & journal des accès',
-      'Accompagnement personnalisé',
-      'Support 24/7',
+      'Utilisateurs illimités',
+      'Accès API',
+      'SLA garanti',
+      'Onboarding dédié',
+      'Sécurité avancée',
+      'Support sur-mesure',
+      'Options white-label',
+      'Installation personnalisée',
     ],
   },
 ];
