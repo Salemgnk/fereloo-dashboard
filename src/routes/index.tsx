@@ -1,21 +1,15 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  Plus,
   ExternalLink,
   Activity,
-  Server,
   Rocket,
   Sparkles,
-  Database,
-  Globe,
-  Users,
-  HardDrive,
-  MapPin,
-  Layers,
-  ArrowRight,
   Trash2,
+  ArrowUpRight,
+  CheckCircle2,
 } from 'lucide-react';
 import { getCurrentTenant, listTenants, deleteTenant } from '@/lib/api';
 import { useAuth } from '@/lib/use-auth';
@@ -27,21 +21,20 @@ import { OnboardingChecklist } from '@/components/onboarding-checklist';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PLANS, type Tenant } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/')({
   head: () => ({
     meta: [
       { title: 'Tableau de bord — Fereloo' },
-      {
-        name: 'description',
-        content: 'Vos CRM Fereloo : statut, plan et accès direct.',
-      },
+      { name: 'description', content: 'Vos CRM Fereloo : statut, plan et accès direct.' },
     ],
   }),
   component: DashboardPage,
 });
 
 function DashboardPage() {
+  const { i18n } = useTranslation();
   const { user, loading, signIn } = useAuth();
   const { companyInfo, checklistDismissed, saveCompanyInfo, dismissChecklist } = useOnboarding(user?.id);
 
@@ -65,147 +58,107 @@ function DashboardPage() {
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-5 w-5 animate-spin rounded-full border border-border border-t-primary" />
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
 
   const isLoading = loadingCurrent || loadingList;
 
+  const dateStr = new Date().toLocaleDateString(
+    i18n.language === 'fr' ? 'fr-FR' : i18n.language === 'de' ? 'de-DE' : 'en-US',
+    { weekday: 'long', day: 'numeric', month: 'long' },
+  );
+
   return (
     <AppShell>
-      <OnboardingModal
-        open={!companyInfo}
-        userName={user.name}
-        onComplete={saveCompanyInfo}
-      />
+      <OnboardingModal open={!companyInfo} userName={user.name} onComplete={saveCompanyInfo} />
 
-      {/* Greeting */}
-      <div className="mb-12">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
-          Session active
+      <div className="mx-auto max-w-3xl">
+
+        {/* ── Greeting ── */}
+        <div className="mb-10 animate-fade-up">
+          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/40">
+            {dateStr}
+          </p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
+            Bonjour, <span className="text-primary">{user.name.split(' ')[0]}</span> 👋
+          </h1>
         </div>
-        <h1 className="font-display text-3xl font-bold tracking-tighter md:text-4xl">
-          Tableau de bord. <span className="text-muted-foreground/40">{user.name.split(' ')[0]}</span>
-        </h1>
+
+        {!checklistDismissed && !isLoading && (
+          <div className="mb-6 animate-fade-up animation-delay-100">
+            <OnboardingChecklist
+              companyDone={!!companyInfo}
+              tenants={tenants ?? []}
+              onDismiss={dismissChecklist}
+            />
+          </div>
+        )}
+
+        {isLoading ? (
+          <DashboardSkeleton />
+        ) : !currentTenant ? (
+          <NoTenantState />
+        ) : (
+          <TenantOverview current={currentTenant} all={tenants ?? []} />
+        )}
       </div>
-
-      {!checklistDismissed && !isLoading && (
-        <OnboardingChecklist
-          companyDone={!!companyInfo}
-          tenants={tenants ?? []}
-          onDismiss={dismissChecklist}
-        />
-      )}
-
-      {isLoading ? (
-        <DashboardSkeleton />
-      ) : !currentTenant ? (
-        <NoTenantState />
-      ) : (
-        <TenantOverview current={currentTenant} all={tenants ?? []} />
-      )}
     </AppShell>
   );
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-24 rounded-xl" />
-        ))}
-      </div>
-      <Skeleton className="h-48 w-full rounded-xl" />
-      <Skeleton className="h-32 w-full rounded-xl" />
+    <div className="space-y-3">
+      <Skeleton className="h-44 w-full rounded-2xl" />
+      <Skeleton className="h-14 w-full rounded-2xl" />
     </div>
   );
 }
 
 function NoTenantState() {
-  return (
-    <div className="mx-auto max-w-2xl space-y-12 py-12">
-      <div className="text-center">
-        <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-xl border border-border bg-secondary text-foreground">
-          <Rocket className="h-7 w-7" />
-        </div>
-        <div className="inline-flex items-center gap-2 rounded-none border border-border bg-secondary/50 px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-          Bienvenue sur Fereloo
-        </div>
-        <h2 className="mt-6 font-display text-3xl font-bold tracking-tighter">
-          Prêt à démarrer ?
-        </h2>
-        <p className="mt-4 text-balance text-sm leading-relaxed text-muted-foreground font-medium">
-          Vous n'avez pas encore de CRM actif. Créez votre espace Fereloo en moins de 3 minutes.
-        </p>
-      </div>
+  const { t } = useTranslation();
 
-      {/* Infrastructure overview */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          { icon: Database, label: 'Base de données', desc: 'Isolée' },
-          { icon: Server, label: 'Serveur Cache', desc: 'Dédié' },
-          { icon: Globe, label: 'Certificat SSL', desc: 'Sécurisé' },
-        ].map(({ icon: Icon, label, desc }) => (
-          <div
-            key={label}
-            className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/40"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Icon className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-tight">{label}</div>
-              <div className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest">{desc}</div>
-            </div>
+  const features = [
+    'Prêt en 90 secondes — installation automatique',
+    'SSL & sécurité inclus dès le premier jour',
+    'Support inclus selon votre formule',
+  ];
+
+  return (
+    <div className="animate-fade-up">
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="absolute left-0 inset-y-0 w-1 bg-primary rounded-r-full" />
+        <div className="flex flex-col gap-6 px-8 py-7 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground/50 mb-2">
+              {t('dashboard.noTenant.badge')}
+            </p>
+            <h2 className="font-display text-xl font-extrabold tracking-tight">
+              {t('dashboard.noTenant.title')}
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground max-w-xs">
+              {t('dashboard.noTenant.description')}
+            </p>
+            <ul className="mt-4 space-y-1.5">
+              {features.map((f) => (
+                <li key={f} className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success" />
+                  {f}
+                </li>
+              ))}
+            </ul>
           </div>
-        ))}
-      </div>
-
-      <div className="border border-foreground/10 bg-card p-8 rounded-xl flex flex-col items-center justify-center gap-6 text-center">
-        <div>
-          <h3 className="font-display text-lg font-bold">Créer votre CRM</h3>
-          <p className="mt-2 text-sm text-muted-foreground font-medium">
-            Choisissez votre nom de domaine et lancez l'installation automatique.
-          </p>
-        </div>
-        <Button asChild className="h-12 px-8 rounded-xl font-bold text-xs uppercase tracking-widest">
-          <Link to="/provision">
-            Démarrer maintenant <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function StatTile({
-  icon: Icon,
-  label,
-  value,
-  sub,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-  sub: string;
-}) {
-  return (
-    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-5 group transition-all hover:border-primary/40">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground/60">
-            {label}
-          </p>
-          <p className="mt-3 font-display text-3xl font-bold tracking-tighter">
-            {value}
-          </p>
-          <p className="mt-2 text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest truncate">{sub}</p>
-        </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Icon className="h-5 w-5" />
+          <div className="shrink-0">
+            <Button asChild className="glow-primary h-10 px-6 text-sm font-bold">
+              <Link to="/provision">
+                {t('dashboard.noTenant.startButton')}
+                <Rocket className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -213,65 +166,28 @@ function StatTile({
 }
 
 function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
-  const planObj = PLANS.find((p) => p.id === current.plan) ?? PLANS[0];
-  const others = all.filter((t) => t.id !== current.id);
-  const activeCount = all.filter((t) => t.status === 'active').length;
+  const { t } = useTranslation();
+  const others = all.filter((o) => o.id !== current.id);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-          Vue d'ensemble
-        </div>
-        <Button asChild variant="outline" size="sm" className="h-8 px-4 rounded-xl font-bold text-[10px] uppercase tracking-widest border-border hover:border-foreground">
-          <Link to="/provision">
-            <Plus className="h-3.5 w-3.5 mr-2" />
-            Nouveau CRM
-          </Link>
-        </Button>
-      </div>
-
-      {/* Stat tiles */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          icon={Layers}
-          label="CRM"
-          value={String(all.length)}
-          sub={`${activeCount} active${activeCount > 1 ? 's' : ''}`}
-        />
-        <StatTile
-          icon={Users}
-          label="Plan"
-          value={planObj.name}
-          sub={`${planObj.users} utilisateurs`}
-        />
-        <StatTile
-          icon={MapPin}
-          label="Région"
-          value={current.region.toUpperCase()}
-          sub="Afrique de l'Ouest"
-        />
-        <StatTile
-          icon={HardDrive}
-          label="Stockage"
-          value={`${planObj.storageGb} Go`}
-          sub="Quota système"
-        />
-      </div>
-
-      <CurrentTenantCard tenant={current} planLabel={planObj.name} />
+    <div className="space-y-3 animate-fade-up animation-delay-100">
+      <CurrentTenantCard tenant={current} />
 
       {others.length > 0 && (
-        <div className="mt-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Autres CRM</h2>
-            <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40">
-              {others.length} CRM
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              {t('dashboard.overview.otherInstances')}
+            </p>
+            <span className="font-mono text-[10px] text-muted-foreground/50">
+              {others.length > 1
+                ? t('dashboard.overview.instanceCounts', { count: others.length })
+                : t('dashboard.overview.instanceCount', { count: others.length })}
             </span>
           </div>
-          <div className="border border-border divide-y divide-border rounded-xl overflow-hidden transition-all hover:border-primary/30">
-            {others.map((t) => (
-              <TenantRow key={t.id} tenant={t} />
+          <div className="divide-y divide-border">
+            {others.map((tenant) => (
+              <TenantRow key={tenant.id} tenant={tenant} />
             ))}
           </div>
         </div>
@@ -280,9 +196,11 @@ function TenantOverview({ current, all }: { current: Tenant; all: Tenant[] }) {
   );
 }
 
-function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: string }) {
+function CurrentTenantCard({ tenant }: { tenant: Tenant }) {
+  const { t } = useTranslation();
+  const planObj = PLANS.find((p) => p.id === tenant.plan) ?? PLANS[0];
   const isActive = tenant.status === 'active';
-  const isProv = tenant.status === 'provisioning';
+  const isProv   = tenant.status === 'provisioning';
   const isFailed = tenant.status === 'failed';
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -297,158 +215,142 @@ function CurrentTenantCard({ tenant, planLabel }: { tenant: Tenant; planLabel: s
   });
 
   const handleDelete = () => {
-    if (window.confirm("Voulez-vous vraiment supprimer ce CRM ? Toutes les données seront perdues.")) {
+    if (window.confirm(t('dashboard.actions.deleteConfirm'))) {
       setIsDeleting(true);
       deleteMutation.mutate(tenant.id);
     }
   };
 
+  const topGradient: Record<string, string> = {
+    active:       'from-success/40 via-success/10 to-transparent',
+    provisioning: 'from-primary/40 via-primary/10 to-transparent',
+    failed:       'from-destructive/40 via-destructive/10 to-transparent',
+    suspended:    'from-warning/40 via-warning/10 to-transparent',
+  };
+
   return (
-    <div className="mt-12 border border-border bg-card rounded-xl overflow-hidden transition-all hover:border-primary/30">
-      <div className="p-8">
-        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
-          <div className="flex items-start gap-6">
-            {/* Avatar */}
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-border bg-primary/10 font-display text-xl font-bold uppercase text-primary">
-              {tenant.subdomain.slice(0, 2)}
-            </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 className="font-display text-2xl font-bold tracking-tighter">{tenant.subdomain}</h2>
-                <StatusBadge status={tenant.status} />
-              </div>
-              <p className="mt-2 font-mono text-xs font-bold text-muted-foreground/60 tracking-tight">
-                {tenant.url.replace('https://', '')}
-              </p>
-              <p className="mt-1 text-[9px] font-bold text-muted-foreground/30 uppercase tracking-widest truncate max-w-xs">
-                Identifiant : {tenant.id}
-              </p>
-            </div>
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+      <div className={cn('h-0.5 bg-gradient-to-r', topGradient[tenant.status])} />
+
+      {/* Hero zone */}
+      <div className="relative px-6 pb-5 pt-6">
+        <div className="absolute right-5 top-5">
+          <StatusBadge status={tenant.status} />
+        </div>
+
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 font-display text-base font-extrabold uppercase text-primary select-none">
+            {tenant.subdomain.slice(0, 2)}
           </div>
-
-          {/* Actions */}
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="h-9 w-9 p-0 rounded-xl border-border hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
-              title="Supprimer ce CRM"
-            >
-              {isDeleting ? <Activity className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-            </Button>
-
-            {(isProv || isFailed) && (
-              <Button asChild variant="outline" size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-widest border-border">
-                <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
-                  <Activity className="h-3.5 w-3.5 mr-2" />
-                  {isProv ? 'Suivre la création' : "Détails erreur"}
-                </Link>
-              </Button>
-            )}
-            {isActive && (
-              <Button asChild size="sm" className="h-9 px-6 rounded-lg font-bold text-[10px] uppercase tracking-widest">
-                <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-3.5 w-3.5 mr-2" />
-                  Ouvrir le CRM
-                </a>
-              </Button>
-            )}
+          <div className="min-w-0 pt-0.5">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight leading-none">
+              {tenant.subdomain}
+            </h2>
+            <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+              {tenant.subdomain}.fereloo.com
+            </p>
+            <span className="mt-2.5 inline-flex items-center rounded-md border border-border bg-secondary px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {planObj.name}
+            </span>
           </div>
         </div>
 
         {isProv && (
-          <div className="mt-8 flex items-center gap-4 rounded-xl border border-border bg-secondary/50 px-6 py-4 text-xs font-bold uppercase tracking-widest text-foreground">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            Installation en cours. Suivez l'avancement en temps réel.
+          <div className="mt-5 flex items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/6 px-4 py-3 text-sm text-primary">
+            <Sparkles className="h-4 w-4 shrink-0 animate-pulse" />
+            {t('dashboard.status.provisioningMsg')}
           </div>
         )}
-
         {isFailed && (
-          <div className="mt-8 flex items-center gap-4 rounded-xl border border-destructive/20 bg-destructive/5 px-6 py-4 text-xs font-bold uppercase tracking-widest text-destructive">
-            <Activity className="h-4 w-4" />
-            Échec de la création. Veuillez consulter les logs pour plus de détails.
+          <div className="mt-5 flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/6 px-4 py-3 text-sm text-destructive">
+            <Activity className="h-4 w-4 shrink-0" />
+            {t('dashboard.status.failedMsg')}
           </div>
         )}
       </div>
 
-      {/* Metadata footer */}
-      <div className="border-t border-border bg-secondary/20 px-8 py-4">
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-          <span>
-            PLAN : <span className="text-foreground">{planLabel}</span>
-          </span>
-          <span>
-            RÉGION : <span className="text-foreground">{tenant.region.toUpperCase()}</span>
-          </span>
-          <span>
-            DISPONIBILITÉ : <span className="text-success">99.9%</span>
-          </span>
-          <span className="ml-auto">
-            CRÉÉ LE : <span className="text-foreground">{new Date(tenant.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
-          </span>
+      {/* Actions footer */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-secondary/20 px-5 py-3.5">
+        <div className="flex flex-wrap items-center gap-2">
+          {isActive && (
+            <Button asChild size="sm" className="glow-primary h-8 gap-1.5 px-4 text-xs font-bold">
+              <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-3.5 w-3.5" />
+                {t('dashboard.actions.open')}
+              </a>
+            </Button>
+          )}
+          {isProv && (
+            <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 px-4 text-xs">
+              <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
+                <Activity className="h-3.5 w-3.5" />
+                {t('dashboard.actions.trackDeploy')}
+              </Link>
+            </Button>
+          )}
+          {isFailed && (
+            <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 px-4 text-xs">
+              <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
+                <Activity className="h-3.5 w-3.5" />
+                {t('dashboard.actions.viewError')}
+              </Link>
+            </Button>
+          )}
+          <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 px-4 text-xs text-muted-foreground">
+            <Link to="/provision">
+              <ArrowUpRight className="h-3.5 w-3.5" />
+              Changer de formule
+            </Link>
+          </Button>
         </div>
+
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting}
+          title={t('dashboard.actions.deleteTooltip')}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground/40 transition-colors hover:bg-destructive/8 hover:text-destructive disabled:opacity-40"
+        >
+          {isDeleting
+            ? <Activity className="h-3.5 w-3.5 animate-spin" />
+            : <Trash2 className="h-3.5 w-3.5" />}
+        </button>
       </div>
     </div>
   );
 }
 
 function TenantRow({ tenant }: { tenant: Tenant }) {
-  const queryClient = useQueryClient();
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteTenant(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tenants'] });
-      queryClient.invalidateQueries({ queryKey: ['current-tenant'] });
-    },
-    onSettled: () => setIsDeleting(false),
-  });
-
-  const handleDelete = () => {
-    if (window.confirm("Voulez-vous vraiment supprimer ce CRM ?")) {
-      setIsDeleting(true);
-      deleteMutation.mutate(tenant.id);
-    }
-  };
+  const { t } = useTranslation();
+  const planObj = PLANS.find((p) => p.id === tenant.plan) ?? PLANS[0];
 
   return (
-    <div className="flex flex-col gap-4 px-6 py-5 transition-colors hover:bg-secondary/30 sm:flex-row sm:items-center sm:gap-6">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-secondary font-mono text-[10px] font-bold uppercase text-muted-foreground/60">
+    <div className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-accent/30">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-secondary font-mono text-[10px] font-bold uppercase text-muted-foreground select-none">
         {tenant.subdomain.slice(0, 2)}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-3">
-          <span className="truncate text-sm font-bold uppercase tracking-tight">{tenant.subdomain}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold">{tenant.subdomain}</span>
           <StatusBadge status={tenant.status} />
         </div>
-        <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-tight text-muted-foreground/40">
-          <span className="truncate tracking-widest">{tenant.url.replace('https://', '')}</span>
-          <span className="text-border">/</span>
-          <span>{tenant.plan.toUpperCase()}</span>
-        </div>
+        <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+          {tenant.subdomain}.fereloo.com · {planObj.name}
+        </p>
       </div>
-      <div className="flex shrink-0 items-center gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className="h-8 w-8 p-0 rounded-xl border-border hover:bg-destructive/5 hover:text-destructive"
-        >
-          {isDeleting ? <Activity className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-        </Button>
-        <Button asChild size="sm" variant="outline" className="h-8 px-4 rounded-xl font-bold text-[9px] uppercase tracking-widest border-border">
-          <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
-            Logs
-          </Link>
-        </Button>
+      <div className="shrink-0">
+        {tenant.status === 'provisioning' && (
+          <Button asChild size="sm" variant="outline" className="h-7 px-3 text-[10px]">
+            <Link to="/status/$tenantId" params={{ tenantId: tenant.id }}>
+              <Activity className="h-3 w-3" />
+              {t('dashboard.actions.track')}
+            </Link>
+          </Button>
+        )}
         {tenant.status === 'active' && (
-          <Button asChild size="sm" variant="outline" className="h-8 px-4 rounded-xl font-bold text-[9px] uppercase tracking-widest border-border hover:bg-foreground hover:text-background">
+          <Button asChild size="sm" variant="outline" className="h-7 px-3 text-[10px]">
             <a href={`${tenant.url}/app/setup-wizard/1`} target="_blank" rel="noopener noreferrer">
-              Accès
+              <ExternalLink className="h-3 w-3" />
+              {t('dashboard.actions.open')}
             </a>
           </Button>
         )}
