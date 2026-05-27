@@ -10,8 +10,6 @@ import {
   Trash2,
   ArrowUpRight,
   CheckCircle2,
-  ShieldCheck,
-  Zap,
 } from 'lucide-react';
 import { getCurrentTenant, listTenants, watchTenants, deleteTenant } from '@/lib/api';
 import { useAuth } from '@/lib/use-auth';
@@ -138,56 +136,53 @@ function DashboardSkeleton() {
 function NoTenantState() {
   const { t } = useTranslation();
 
-  const perks = [
-    { icon: Zap,          label: 'Prêt en 90 secondes',        desc: 'Installation automatique, zéro configuration.' },
-    { icon: ShieldCheck,  label: 'SSL & sécurité inclus',       desc: 'Certificat HTTPS généré automatiquement.' },
-    { icon: CheckCircle2, label: 'Support inclus dans le plan', desc: 'Email ou prioritaire selon votre formule.' },
+  const features = [
+    'Prêt en 90 secondes — installation automatique',
+    'SSL & sécurité inclus dès le premier jour',
+    'Support inclus selon votre formule',
   ];
 
   return (
-    <div className="animate-fade-up space-y-6">
+    <div className="animate-fade-up">
+      <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
 
-      {/* Hero CTA */}
-      <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background p-8 text-center">
-        {/* decorative glow */}
-        <div className="pointer-events-none absolute -top-10 left-1/2 h-32 w-64 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+        {/* orange left accent */}
+        <div className="absolute left-0 inset-y-0 w-1 bg-primary rounded-r-full" />
 
-        <div className="relative">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary">
-            <Rocket className="h-6 w-6" />
+        <div className="flex flex-col gap-6 px-8 py-7 sm:flex-row sm:items-center sm:justify-between">
+
+          {/* Left — text */}
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground/50 mb-2">
+              {t('dashboard.noTenant.badge')}
+            </p>
+            <h2 className="font-display text-xl font-extrabold tracking-tight">
+              {t('dashboard.noTenant.title')}
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground max-w-xs">
+              {t('dashboard.noTenant.description')}
+            </p>
+            <ul className="mt-4 space-y-1.5">
+              {features.map((f) => (
+                <li key={f} className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success" />
+                  {f}
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/8 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-primary">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-            {t('dashboard.noTenant.badge')}
+
+          {/* Right — CTA */}
+          <div className="shrink-0">
+            <Button asChild className="glow-primary h-10 px-6 text-sm font-bold">
+              <Link to="/provision">
+                {t('dashboard.noTenant.startButton')}
+                <Rocket className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
-          <h2 className="mt-3 font-display text-2xl font-extrabold tracking-tight">
-            {t('dashboard.noTenant.title')}
-          </h2>
-          <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            {t('dashboard.noTenant.description')}
-          </p>
-          <Button asChild className="mt-6 glow-primary h-11 px-8 text-sm font-bold">
-            <Link to="/provision">
-              <Rocket className="h-4 w-4" />
-              {t('dashboard.noTenant.startButton')}
-            </Link>
-          </Button>
+
         </div>
-      </div>
-
-      {/* Perks */}
-      <div className="grid gap-2 sm:grid-cols-3">
-        {perks.map(({ icon: Icon, label, desc }) => (
-          <div key={label} className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/8 text-primary">
-              <Icon className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">{label}</p>
-              <p className="mt-0.5 font-mono text-[10px] leading-relaxed text-muted-foreground">{desc}</p>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
