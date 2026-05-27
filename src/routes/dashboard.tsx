@@ -89,7 +89,7 @@ function DashboardPage() {
     <AppShell>
       <OnboardingModal open={!companyInfo} userName={user.name} onComplete={saveCompanyInfo} />
 
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-3xl">
 
         {/* ── Greeting ── */}
         <div className="mb-10 animate-fade-up">
@@ -97,8 +97,7 @@ function DashboardPage() {
             {dateStr}
           </p>
           <h1 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
-            {t('dashboard.greeting', { name: '' }).trim()}{' '}
-            <span className="text-primary">{user.name.split(' ')[0]}</span>
+            Bonjour, <span className="text-primary">{user.name.split(' ')[0]}</span> 👋
           </h1>
         </div>
 
