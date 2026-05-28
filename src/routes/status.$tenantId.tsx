@@ -40,7 +40,7 @@ function useTips() {
   return { tip: tips[index], visible };
 }
 
-const PROVISIONING_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+const PROVISIONING_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 function useTenantStatusStream(tenantId: string) {
   const [data, setData] = useState<TenantStatusResponse | null>(null);
