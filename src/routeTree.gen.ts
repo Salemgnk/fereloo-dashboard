@@ -10,18 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProvisionRouteImport } from './routes/provision'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatusTenantIdRouteImport } from './routes/status.$tenantId'
 
 const ProvisionRoute = ProvisionRouteImport.update({
   id: '/provision',
   path: '/provision',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,34 +31,30 @@ const StatusTenantIdRoute = StatusTenantIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/provision': typeof ProvisionRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/provision': typeof ProvisionRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/provision': typeof ProvisionRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/provision' | '/status/$tenantId'
+  fullPaths: '/' | '/provision' | '/status/$tenantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/provision' | '/status/$tenantId'
-  id: '__root__' | '/' | '/dashboard' | '/provision' | '/status/$tenantId'
+  to: '/' | '/provision' | '/status/$tenantId'
+  id: '__root__' | '/' | '/provision' | '/status/$tenantId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
   ProvisionRoute: typeof ProvisionRoute
   StatusTenantIdRoute: typeof StatusTenantIdRoute
 }
@@ -76,13 +66,6 @@ declare module '@tanstack/react-router' {
       path: '/provision'
       fullPath: '/provision'
       preLoaderRoute: typeof ProvisionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -104,7 +87,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
   ProvisionRoute: ProvisionRoute,
   StatusTenantIdRoute: StatusTenantIdRoute,
 }

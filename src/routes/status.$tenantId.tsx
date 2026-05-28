@@ -40,21 +40,42 @@ function useTips() {
   return { tip: tips[index], visible };
 }
 
+const PROVISIONING_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
 function useTenantStatusStream(tenantId: string) {
   const [data, setData] = useState<TenantStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
+    let terminal = false;
+
+    const timer = setTimeout(() => {
+      if (!terminal) setTimedOut(true);
+    }, PROVISIONING_TIMEOUT_MS);
+
     const cleanup = streamTenantStatus(
       tenantId,
-      (d) => { setData(d); setIsLoading(false); setIsError(false); },
+      (d) => {
+        setData(d);
+        setIsLoading(false);
+        setIsError(false);
+        if (d.tenant.status === 'active' || d.tenant.status === 'failed') {
+          terminal = true;
+          clearTimeout(timer);
+        }
+      },
       () => { setIsError(true); setIsLoading(false); },
     );
-    return cleanup;
+
+    return () => {
+      clearTimeout(timer);
+      cleanup();
+    };
   }, [tenantId]);
 
-  return { data, isLoading, isError };
+  return { data, isLoading, isError, timedOut };
 }
 
 function StatusPage() {
@@ -83,7 +104,7 @@ function StatusPage() {
 function StatusView() {
   const { t } = useTranslation();
   const { tenantId } = Route.useParams();
-  const { data, isLoading, isError } = useTenantStatusStream(tenantId);
+  const { data, isLoading, isError, timedOut } = useTenantStatusStream(tenantId);
   const { tip, visible } = useTips();
 
   if (isLoading) {
@@ -115,6 +136,32 @@ function StatusView() {
   const { tenant, progress, errorMessage } = data;
   const isReady = tenant.status === 'active';
   const isFailed = tenant.status === 'failed';
+
+  if (timedOut && !isReady && !isFailed) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 text-center animate-fade-in">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full border border-destructive/30 bg-destructive/10">
+          <XCircle className="h-9 w-9 text-destructive" />
+        </div>
+        <div className="space-y-2">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-destructive/70">
+            {t('statusPage.timedOut.badge')}
+          </p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t('statusPage.timedOut.title')}</h1>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">{t('statusPage.timedOut.desc')}</p>
+        </div>
+        <Button asChild variant="outline" className="h-11 px-6 font-bold text-xs uppercase tracking-widest">
+          <Link to="/provision">
+            <RefreshCw className="h-4 w-4" />
+            {t('statusPage.timedOut.retry')}
+          </Link>
+        </Button>
+        <Link to="/" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+          {t('statusPage.timedOut.back')}
+        </Link>
+      </div>
+    );
+  }
 
   if (isReady) {
     return (

@@ -131,6 +131,13 @@ const resources = {
           retry: "Réessayer",
           back: "Retour au tableau de bord",
         },
+        timedOut: {
+          badge: "Délai dépassé",
+          title: "La création prend trop de temps.",
+          desc: "L'opération a dépassé le délai maximum. Veuillez réessayer ou contacter le support si le problème persiste.",
+          retry: "Réessayer",
+          back: "Retour au tableau de bord",
+        },
         provisioning: {
           badge: "Création en cours",
           live: "En direct",
@@ -332,6 +339,13 @@ const resources = {
         failed: {
           badge: "Setup failed",
           title: "An error occurred.",
+          retry: "Try again",
+          back: "Back to dashboard",
+        },
+        timedOut: {
+          badge: "Timed out",
+          title: "Setup is taking too long.",
+          desc: "The operation exceeded the maximum allowed time. Please try again or contact support if the issue persists.",
           retry: "Try again",
           back: "Back to dashboard",
         },
@@ -539,6 +553,13 @@ const resources = {
         failed: {
           badge: "Einrichtung fehlgeschlagen",
           title: "Ein Fehler ist aufgetreten.",
+          retry: "Erneut versuchen",
+          back: "Zurück zum Dashboard",
+        },
+        timedOut: {
+          badge: "Zeitüberschreitung",
+          title: "Die Einrichtung dauert zu lange.",
+          desc: "Der Vorgang hat die maximale Zeit überschritten. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support.",
           retry: "Erneut versuchen",
           back: "Zurück zum Dashboard",
         },
