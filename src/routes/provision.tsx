@@ -11,9 +11,7 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  CreditCard,
 } from 'lucide-react';
-import { CheckoutButton } from '@clerk/clerk-react/experimental';
 import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,8 +19,7 @@ import { Label } from '@/components/ui/label';
 import { ProvisioningSpinner } from '@/components/provisioning-spinner';
 import { useAuth } from '@/lib/use-auth';
 import { checkSubdomainAvailable, provisionTenant } from '@/lib/api';
-import { PLANS, type PlanId, type BillingPeriod, CLERK_PLAN_IDS } from '@/lib/types';
-import { useBilling } from '@/lib/use-billing';
+import { PLANS, type PlanId, type BillingPeriod } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/provision')({
@@ -69,7 +66,6 @@ function ProvisionForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isActive, activePlanId, clerkPlanIdFor } = useBilling();
   const [subdomain, setSubdomain] = useState('');
   const [plan, setPlan] = useState<PlanId>('pro');
   const [billing, setBilling] = useState<BillingPeriod>('monthly');
@@ -102,13 +98,7 @@ function ProvisionForm() {
   });
 
   const selectedPlan = PLANS.find((p) => p.id === plan)!;
-  const formReady = check === 'available' && !provision.isPending && !selectedPlan.contactSales;
-  // User already has an active subscription for this plan → provision directly
-  const alreadySubscribed = isActive && activePlanId === plan;
-  const canSubmit = formReady && alreadySubscribed;
-  // Need to go through checkout first
-  const needsCheckout = formReady && !alreadySubscribed && plan !== 'enterprise';
-  const clerkPlanId = plan !== 'enterprise' ? clerkPlanIdFor(plan as Exclude<PlanId, 'enterprise'>) : '';
+  const canSubmit = check === 'available' && !provision.isPending && !selectedPlan.contactSales;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -337,17 +327,6 @@ function ProvisionForm() {
             >
               Contacter les ventes
             </a>
-          ) : needsCheckout ? (
-            <CheckoutButton
-              planId={clerkPlanId}
-              planPeriod={billing === 'annual' ? 'annual' : 'month'}
-              onSubscriptionComplete={() => provision.mutate()}
-            >
-              <Button className="glow-primary shrink-0">
-                <CreditCard className="h-4 w-4" />
-                {t('provision.submit.pay')}
-              </Button>
-            </CheckoutButton>
           ) : (
             <Button
               onClick={() => provision.mutate()}
