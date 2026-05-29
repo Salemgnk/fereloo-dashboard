@@ -164,8 +164,13 @@ export default defineConfig(({ command, mode }) => {
   // Use Cloudflare Workers plugin for builds only if mode is 'cloudflare'
   const useCloudflare = command === "build" && mode === "cloudflare";
 
-  // Load VITE_ env vars and define them for SSR
-  const env = loadEnv(mode, process.cwd(), "VITE_");
+  // Load VITE_ env vars and define them for SSR.
+  // Merge .env files with system env vars — system vars win (needed for CI/Dokploy builds).
+  const envFromFiles = loadEnv(mode, process.cwd(), "VITE_");
+  const envFromSystem = Object.fromEntries(
+    Object.entries(process.env).filter(([k]) => k.startsWith("VITE_")) as [string, string][],
+  );
+  const env = { ...envFromFiles, ...envFromSystem };
   const envDefine: Record<string, string> = {};
   for (const [key, value] of Object.entries(env)) {
     envDefine[`import.meta.env.${key}`] = JSON.stringify(value);
