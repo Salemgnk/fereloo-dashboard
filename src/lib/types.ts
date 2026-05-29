@@ -2,6 +2,12 @@ export type TenantStatus = 'provisioning' | 'active' | 'failed' | 'suspended';
 export type PlanId = 'basic' | 'pro' | 'enterprise';
 export type BillingPeriod = 'monthly' | 'annual';
 
+/** Clerk plan IDs — set VITE_CLERK_PLAN_STARTER and VITE_CLERK_PLAN_BUSINESS in .env */
+export const CLERK_PLAN_IDS: Record<Exclude<PlanId, 'enterprise'>, string> = {
+  basic: (import.meta.env.VITE_CLERK_PLAN_STARTER as string | undefined) ?? '',
+  pro:   (import.meta.env.VITE_CLERK_PLAN_BUSINESS as string | undefined) ?? '',
+};
+
 /** The 4 fixed Fereloo CRM provisioning steps. */
 export type ProvisioningStepKey = 'mariadb' | 'redis' | 'app' | 'domain';
 export type ProvisioningStepStatus = 'pending' | 'running' | 'success' | 'failed';

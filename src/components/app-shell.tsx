@@ -1,13 +1,16 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { ReactNode } from 'react';
-import { LayoutDashboard, Plus, LogOut, Globe } from 'lucide-react';
+import { LayoutDashboard, Plus, LogOut, Globe, CreditCard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { SubscriptionDetailsButton } from '@clerk/clerk-react/experimental';
 import { useAuth } from '@/lib/use-auth';
+import { useBilling } from '@/lib/use-billing';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -69,6 +72,7 @@ function Breadcrumbs() {
 export function AppShell({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
   const { user, signOut } = useAuth();
+  const { isActive } = useBilling();
   const navigate = useNavigate();
 
   return (
@@ -137,18 +141,33 @@ export function AppShell({ children }: { children: ReactNode }) {
             </DropdownMenu>
 
             {user && (
-              <div className="flex items-center gap-1">
-                <UserAvatar name={user.name} email={user.email} />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={signOut}
-                  aria-label={t('nav.logout')}
-                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                </Button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-accent">
+                    <UserAvatar name={user.name} email={user.email} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <div className="px-2 py-1.5">
+                    <p className="text-[11px] font-bold uppercase tracking-tight leading-tight">{user.name}</p>
+                    <p className="font-mono text-[9px] text-muted-foreground/60">{user.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  {isActive && (
+                    <SubscriptionDetailsButton>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <CreditCard className="h-3.5 w-3.5" />
+                        {t('nav.manageSubscription')}
+                      </DropdownMenuItem>
+                    </SubscriptionDetailsButton>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-muted-foreground">
+                    <LogOut className="h-3.5 w-3.5" />
+                    {t('nav.logout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
 

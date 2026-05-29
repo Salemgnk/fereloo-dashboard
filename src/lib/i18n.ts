@@ -13,6 +13,7 @@ const resources = {
         newInstance: "Nouveau CRM",
         changeLanguage: "Changer de langue",
         logout: "Déconnexion",
+        manageSubscription: "Mon abonnement",
         fr: "Français",
         en: "English",
         de: "Deutsch",
@@ -107,6 +108,7 @@ const resources = {
         submit: {
           pending: "Création en cours…",
           confirm: "Confirmer et créer votre CRM Fereloo",
+          pay: "Payer et créer votre CRM",
         },
       },
       statusPage: {
@@ -224,6 +226,7 @@ const resources = {
         newInstance: "New CRM",
         changeLanguage: "Change language",
         logout: "Logout",
+        manageSubscription: "My subscription",
         fr: "Français",
         en: "English",
         de: "Deutsch",
@@ -318,6 +321,7 @@ const resources = {
         submit: {
           pending: "Creating…",
           confirm: "Confirm and create your Fereloo CRM",
+          pay: "Pay and create your CRM",
         },
       },
       statusPage: {
@@ -438,6 +442,7 @@ const resources = {
         newInstance: "Neues CRM",
         changeLanguage: "Sprache ändern",
         logout: "Abmelden",
+        manageSubscription: "Mein Abonnement",
         fr: "Français",
         en: "English",
         de: "Deutsch",
@@ -532,6 +537,7 @@ const resources = {
         submit: {
           pending: "Wird erstellt…",
           confirm: "Bestätigen und Fereloo CRM erstellen",
+          pay: "Bezahlen und CRM erstellen",
         },
       },
       statusPage: {
