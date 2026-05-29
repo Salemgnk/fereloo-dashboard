@@ -10,6 +10,7 @@ import "@/lib/i18n";
 
 const CLERK_PUBLISHABLE_KEY =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLERK_PUBLISHABLE_KEY) ||
+  process.env.CLERK_PUBLISHABLE_KEY ||
   process.env.VITE_CLERK_PUBLISHABLE_KEY ||
   "";
 
