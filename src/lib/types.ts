@@ -20,6 +20,8 @@ export interface Plan {
   description: string;
   priceFcfa: number;
   priceFcfaAnnual?: number;
+  priceEur: number;           // prix mensuel EUR
+  priceEurAnnual?: number;    // prix mensuel EUR si annuel (total annuel / 12)
   period: string;
   users: number;
   storageGb: number;
@@ -68,6 +70,8 @@ export const PLANS: Plan[] = [
     description: 'Freelances, coachs et solo-entrepreneurs',
     priceFcfa: 6500,
     priceFcfaAnnual: 5200,
+    priceEur: 9,
+    priceEurAnnual: 7.25,
     period: '/mois',
     users: 2,
     storageGb: 10,
@@ -86,6 +90,8 @@ export const PLANS: Plan[] = [
     description: 'PME, agences et startups en croissance',
     priceFcfa: 20900,
     priceFcfaAnnual: 16720,
+    priceEur: 29,
+    priceEurAnnual: 23.17,
     period: '/mois',
     users: 7,
     storageGb: 50,
@@ -105,6 +111,7 @@ export const PLANS: Plan[] = [
     name: 'Enterprise',
     description: 'Grandes équipes et organisations',
     priceFcfa: 0,
+    priceEur: 0,
     period: '',
     users: 0,
     storageGb: 0,
