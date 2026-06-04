@@ -7,6 +7,7 @@
  */
 import {
   PROVISIONING_STEP_DEFS,
+  type BillingPeriod,
   type PlanId,
   type ProvisioningLog,
   type ProvisioningStep,
@@ -169,6 +170,28 @@ export async function provisionTenant(input: {
     url: `https://${input.subdomain}.fereloo.com`,
     region: input.region ?? 'af-west-1',
   };
+}
+
+export async function createCheckoutSession(input: {
+  subdomain: string;
+  plan: PlanId;
+  billing: BillingPeriod;
+}): Promise<{ checkout_url: string }> {
+  return apiPost<{ checkout_url: string }>('/billing/checkout', {
+    subdomain: input.subdomain,
+    plan_id: input.plan,
+    billing_period: input.billing,
+  });
+}
+
+export async function getBillingSession(
+  sessionId: string,
+): Promise<{ tenant_id: string } | null> {
+  try {
+    return await apiGet<{ tenant_id: string }>(`/billing/session/${encodeURIComponent(sessionId)}`);
+  } catch {
+    return null;
+  }
 }
 
 export async function deleteTenant(id: string): Promise<void> {
