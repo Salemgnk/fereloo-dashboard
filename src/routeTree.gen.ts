@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProvisionRouteImport } from './routes/provision'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProvisionIndexRouteImport } from './routes/provision.index'
 import { Route as StatusTenantIdRouteImport } from './routes/status.$tenantId'
+import { Route as ProvisionSuccessRouteImport } from './routes/provision.success'
+import { Route as ProvisionCancelRouteImport } from './routes/provision.cancel'
 
 const ProvisionRoute = ProvisionRouteImport.update({
   id: '/provision',
@@ -23,39 +26,80 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProvisionIndexRoute = ProvisionIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProvisionRoute,
+} as any)
 const StatusTenantIdRoute = StatusTenantIdRouteImport.update({
   id: '/status/$tenantId',
   path: '/status/$tenantId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProvisionSuccessRoute = ProvisionSuccessRouteImport.update({
+  id: '/success',
+  path: '/success',
+  getParentRoute: () => ProvisionRoute,
+} as any)
+const ProvisionCancelRoute = ProvisionCancelRouteImport.update({
+  id: '/cancel',
+  path: '/cancel',
+  getParentRoute: () => ProvisionRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/provision': typeof ProvisionRoute
+  '/provision': typeof ProvisionRouteWithChildren
+  '/provision/cancel': typeof ProvisionCancelRoute
+  '/provision/success': typeof ProvisionSuccessRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
+  '/provision/': typeof ProvisionIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/provision': typeof ProvisionRoute
+  '/provision/cancel': typeof ProvisionCancelRoute
+  '/provision/success': typeof ProvisionSuccessRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
+  '/provision': typeof ProvisionIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/provision': typeof ProvisionRoute
+  '/provision': typeof ProvisionRouteWithChildren
+  '/provision/cancel': typeof ProvisionCancelRoute
+  '/provision/success': typeof ProvisionSuccessRoute
   '/status/$tenantId': typeof StatusTenantIdRoute
+  '/provision/': typeof ProvisionIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/provision' | '/status/$tenantId'
+  fullPaths:
+    | '/'
+    | '/provision'
+    | '/provision/cancel'
+    | '/provision/success'
+    | '/status/$tenantId'
+    | '/provision/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/provision' | '/status/$tenantId'
-  id: '__root__' | '/' | '/provision' | '/status/$tenantId'
+  to:
+    | '/'
+    | '/provision/cancel'
+    | '/provision/success'
+    | '/status/$tenantId'
+    | '/provision'
+  id:
+    | '__root__'
+    | '/'
+    | '/provision'
+    | '/provision/cancel'
+    | '/provision/success'
+    | '/status/$tenantId'
+    | '/provision/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ProvisionRoute: typeof ProvisionRoute
+  ProvisionRoute: typeof ProvisionRouteWithChildren
   StatusTenantIdRoute: typeof StatusTenantIdRoute
 }
 
@@ -75,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/provision/': {
+      id: '/provision/'
+      path: '/'
+      fullPath: '/provision/'
+      preLoaderRoute: typeof ProvisionIndexRouteImport
+      parentRoute: typeof ProvisionRoute
+    }
     '/status/$tenantId': {
       id: '/status/$tenantId'
       path: '/status/$tenantId'
@@ -82,12 +133,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatusTenantIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/provision/success': {
+      id: '/provision/success'
+      path: '/success'
+      fullPath: '/provision/success'
+      preLoaderRoute: typeof ProvisionSuccessRouteImport
+      parentRoute: typeof ProvisionRoute
+    }
+    '/provision/cancel': {
+      id: '/provision/cancel'
+      path: '/cancel'
+      fullPath: '/provision/cancel'
+      preLoaderRoute: typeof ProvisionCancelRouteImport
+      parentRoute: typeof ProvisionRoute
+    }
   }
 }
 
+interface ProvisionRouteChildren {
+  ProvisionCancelRoute: typeof ProvisionCancelRoute
+  ProvisionSuccessRoute: typeof ProvisionSuccessRoute
+  ProvisionIndexRoute: typeof ProvisionIndexRoute
+}
+
+const ProvisionRouteChildren: ProvisionRouteChildren = {
+  ProvisionCancelRoute: ProvisionCancelRoute,
+  ProvisionSuccessRoute: ProvisionSuccessRoute,
+  ProvisionIndexRoute: ProvisionIndexRoute,
+}
+
+const ProvisionRouteWithChildren = ProvisionRoute._addFileChildren(
+  ProvisionRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ProvisionRoute: ProvisionRoute,
+  ProvisionRoute: ProvisionRouteWithChildren,
   StatusTenantIdRoute: StatusTenantIdRoute,
 }
 export const routeTree = rootRouteImport
