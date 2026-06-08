@@ -176,11 +176,13 @@ export async function createCheckoutSession(input: {
   subdomain: string;
   plan: PlanId;
   billing: BillingPeriod;
+  email?: string;
 }): Promise<{ checkout_url: string }> {
   return apiPost<{ checkout_url: string }>('/billing/checkout', {
     subdomain: input.subdomain,
     plan_id: input.plan,
     billing_period: input.billing,
+    email: input.email,
   });
 }
 

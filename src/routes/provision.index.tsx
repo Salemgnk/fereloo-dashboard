@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { ProvisioningSpinner } from '@/components/provisioning-spinner';
 import { checkSubdomainAvailable, createCheckoutSession } from '@/lib/api';
 import { PLANS, type PlanId, type BillingPeriod } from '@/lib/types';
+import { useAuth } from '@/lib/use-auth';
 import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/provision/')({
@@ -29,6 +30,7 @@ type SubdomainCheck = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
 function ProvisionForm() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [subdomain, setSubdomain] = useState('');
   const [plan, setPlan] = useState<PlanId>('pro');
   const [billing, setBilling] = useState<BillingPeriod>('monthly');
@@ -46,7 +48,7 @@ function ProvisionForm() {
   }, [subdomain]);
 
   const checkout = useMutation({
-    mutationFn: () => createCheckoutSession({ subdomain, plan, billing }),
+    mutationFn: () => createCheckoutSession({ subdomain, plan, billing, email: user?.email }),
     onSuccess: (data) => {
       window.location.href = data.checkout_url;
     },
