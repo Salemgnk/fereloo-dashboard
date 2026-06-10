@@ -29,8 +29,9 @@ const SUBDOMAIN_REGEX = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
 type SubdomainCheck = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
 function ProvisionForm() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const isFr = i18n.language.startsWith('fr');
   const [subdomain, setSubdomain] = useState('');
   const [plan, setPlan] = useState<PlanId>('pro');
   const [billing, setBilling] = useState<BillingPeriod>('monthly');
@@ -173,7 +174,9 @@ function ProvisionForm() {
           <div className="grid gap-3 md:grid-cols-3">
             {PLANS.map((p) => {
               const selected = plan === p.id;
-              const displayPrice = billing === 'annual' && p.priceEurAnnual ? p.priceEurAnnual : p.priceEur;
+              const displayPrice = isFr
+                ? (billing === 'annual' && p.priceFcfaAnnual ? p.priceFcfaAnnual : p.priceFcfa)
+                : (billing === 'annual' && p.priceEurAnnual ? p.priceEurAnnual : p.priceEur);
               return (
                 <button
                   key={p.id}
@@ -212,9 +215,9 @@ function ProvisionForm() {
                     ) : (
                       <>
                         <span className="font-display text-2xl font-bold">
-                          {displayPrice?.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                          {displayPrice?.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: isFr ? 0 : 2 })}
                         </span>
-                        <span className="text-xs text-muted-foreground">€/mois</span>
+                        <span className="text-xs text-muted-foreground">{isFr ? 'FCFA/mois' : '€/mois'}</span>
                       </>
                     )}
                   </div>
