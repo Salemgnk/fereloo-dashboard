@@ -10,8 +10,9 @@ import {
   Trash2,
   ArrowUpRight,
   CheckCircle2,
+  XCircle,
 } from 'lucide-react';
-import { getCurrentTenant, listTenants, deleteTenant } from '@/lib/api';
+import { getCurrentTenant, listTenants, deleteTenant, cancelSubscription } from '@/lib/api';
 import { useAuth } from '@/lib/use-auth';
 import { useOnboarding } from '@/lib/use-onboarding';
 import { AppShell } from '@/components/app-shell';
@@ -214,10 +215,21 @@ function CurrentTenantCard({ tenant }: { tenant: Tenant }) {
     onSettled: () => setIsDeleting(false),
   });
 
+  const cancelMutation = useMutation({
+    mutationFn: cancelSubscription,
+    onSuccess: () => alert('Abonnement résilié. Votre accès reste actif jusqu\'à la fin de la période en cours.'),
+  });
+
   const handleDelete = () => {
     if (window.confirm(t('dashboard.actions.deleteConfirm'))) {
       setIsDeleting(true);
       deleteMutation.mutate(tenant.id);
+    }
+  };
+
+  const handleCancel = () => {
+    if (window.confirm('Résilier votre abonnement ? Vous garderez l\'accès jusqu\'à la fin de la période en cours.')) {
+      cancelMutation.mutate();
     }
   };
 
@@ -304,16 +316,29 @@ function CurrentTenantCard({ tenant }: { tenant: Tenant }) {
           </Button>
         </div>
 
-        <button
-          onClick={handleDelete}
-          disabled={isDeleting}
-          title={t('dashboard.actions.deleteTooltip')}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground/40 transition-colors hover:bg-destructive/8 hover:text-destructive disabled:opacity-40"
-        >
-          {isDeleting
-            ? <Activity className="h-3.5 w-3.5 animate-spin" />
-            : <Trash2 className="h-3.5 w-3.5" />}
-        </button>
+        <div className="flex items-center gap-1">
+          {isActive && (
+            <button
+              onClick={handleCancel}
+              disabled={cancelMutation.isPending}
+              title="Résilier l'abonnement"
+              className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground/40 transition-colors hover:bg-destructive/8 hover:text-destructive disabled:opacity-40"
+            >
+              <XCircle className="h-3.5 w-3.5" />
+              Résilier
+            </button>
+          )}
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            title={t('dashboard.actions.deleteTooltip')}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground/40 transition-colors hover:bg-destructive/8 hover:text-destructive disabled:opacity-40"
+          >
+            {isDeleting
+              ? <Activity className="h-3.5 w-3.5 animate-spin" />
+              : <Trash2 className="h-3.5 w-3.5" />}
+          </button>
+        </div>
       </div>
     </div>
   );

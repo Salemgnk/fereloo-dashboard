@@ -186,6 +186,10 @@ export async function createCheckoutSession(input: {
   });
 }
 
+export async function cancelSubscription(): Promise<{ canceled: boolean }> {
+  return apiFetch<{ canceled: boolean }>('/billing/cancel', { method: 'POST' });
+}
+
 export async function getBillingSession(
   sessionId: string,
 ): Promise<{ tenant_id: string } | null> {
