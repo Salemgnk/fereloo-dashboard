@@ -39,6 +39,7 @@ export interface Tenant {
   url: string;
   wizardUrl?: string;
   region: string;
+  trialEndsAt?: string;
 }
 
 export interface ProvisioningLog {

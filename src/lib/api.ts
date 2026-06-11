@@ -67,6 +67,7 @@ interface RawTenant {
   url: string;
   wizardUrl?: string;
   region: string;
+  trialEndsAt?: string;
 }
 
 interface RawStep {
@@ -101,6 +102,7 @@ function rawToTenant(r: RawTenant): Tenant {
     url: r.url,
     wizardUrl: r.wizardUrl,
     region: r.region,
+    trialEndsAt: r.trialEndsAt,
   };
 }
 
@@ -188,6 +190,10 @@ export async function createCheckoutSession(input: {
 
 export async function cancelSubscription(): Promise<{ canceled: boolean }> {
   return apiFetch<{ canceled: boolean }>('/billing/cancel', { method: 'POST' });
+}
+
+export async function reactivateSubscription(): Promise<{ checkout_url: string }> {
+  return apiFetch<{ checkout_url: string }>('/billing/reactivate', { method: 'POST' });
 }
 
 export async function getBillingSession(
