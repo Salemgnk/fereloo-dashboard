@@ -11,8 +11,9 @@ import {
   ArrowUpRight,
   CheckCircle2,
   XCircle,
+  RefreshCw,
 } from 'lucide-react';
-import { getCurrentTenant, listTenants, deleteTenant, cancelSubscription } from '@/lib/api';
+import { getCurrentTenant, listTenants, deleteTenant, cancelSubscription, reactivateSubscription } from '@/lib/api';
 import { useAuth } from '@/lib/use-auth';
 import { useOnboarding } from '@/lib/use-onboarding';
 import { AppShell } from '@/components/app-shell';
@@ -215,9 +216,20 @@ function CurrentTenantCard({ tenant }: { tenant: Tenant }) {
     onSettled: () => setIsDeleting(false),
   });
 
+  const isSuspended = tenant.status === 'suspended';
+  const trialDaysLeft = tenant.trialEndsAt
+    ? Math.ceil((new Date(tenant.trialEndsAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
+  const isTrialing = trialDaysLeft !== null && trialDaysLeft > 0;
+
   const cancelMutation = useMutation({
     mutationFn: cancelSubscription,
     onSuccess: () => alert('Abonnement résilié. Votre accès reste actif jusqu\'à la fin de la période en cours.'),
+  });
+
+  const reactivateMutation = useMutation({
+    mutationFn: reactivateSubscription,
+    onSuccess: (data) => { window.location.href = data.checkout_url; },
   });
 
   const handleDelete = () => {
@@ -267,6 +279,18 @@ function CurrentTenantCard({ tenant }: { tenant: Tenant }) {
           </div>
         </div>
 
+        {isTrialing && (
+          <div className="mt-5 flex items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/6 px-4 py-3 text-sm text-primary">
+            <Sparkles className="h-4 w-4 shrink-0" />
+            Essai gratuit — {trialDaysLeft} jour{trialDaysLeft !== 1 ? 's' : ''} restant{trialDaysLeft !== 1 ? 's' : ''}
+          </div>
+        )}
+        {isSuspended && (
+          <div className="mt-5 flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/6 px-4 py-3 text-sm text-destructive">
+            <XCircle className="h-4 w-4 shrink-0" />
+            Votre essai gratuit est terminé. Réactivez votre compte pour retrouver l&apos;accès à votre CRM.
+          </div>
+        )}
         {isProv && (
           <div className="mt-5 flex items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/6 px-4 py-3 text-sm text-primary">
             <Sparkles className="h-4 w-4 shrink-0 animate-pulse" />
@@ -317,6 +341,19 @@ function CurrentTenantCard({ tenant }: { tenant: Tenant }) {
         </div>
 
         <div className="flex items-center gap-1">
+          {isSuspended && (
+            <Button
+              size="sm"
+              onClick={() => reactivateMutation.mutate()}
+              disabled={reactivateMutation.isPending}
+              className="h-8 gap-1.5 px-4 text-xs glow-primary"
+            >
+              {reactivateMutation.isPending
+                ? <Activity className="h-3.5 w-3.5 animate-spin" />
+                : <RefreshCw className="h-3.5 w-3.5" />}
+              Réactiver
+            </Button>
+          )}
           {isActive && (
             <button
               onClick={handleCancel}
