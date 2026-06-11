@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   Check,
-  CreditCard,
+  Rocket,
   Sparkles,
   Globe,
   CheckCircle2,
@@ -16,8 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ProvisioningSpinner } from '@/components/provisioning-spinner';
-import { checkSubdomainAvailable, createCheckoutSession } from '@/lib/api';
-import { PLANS, type PlanId, type BillingPeriod } from '@/lib/types';
+import { checkSubdomainAvailable, provisionTenant } from '@/lib/api';
+import { PLANS, type PlanId } from '@/lib/types';
 import { useAuth } from '@/lib/use-auth';
 import { cn } from '@/lib/utils';
 
@@ -31,10 +31,11 @@ type SubdomainCheck = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 function ProvisionForm() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const isFr = i18n.language.startsWith('fr');
   const [subdomain, setSubdomain] = useState('');
   const [plan, setPlan] = useState<PlanId>('pro');
-  const [billing, setBilling] = useState<BillingPeriod>('monthly');
   const [check, setCheck] = useState<SubdomainCheck>('idle');
 
   useEffect(() => {
@@ -48,15 +49,17 @@ function ProvisionForm() {
     return () => clearTimeout(timer);
   }, [subdomain]);
 
-  const checkout = useMutation({
-    mutationFn: () => createCheckoutSession({ subdomain, plan, billing, email: user?.email }),
-    onSuccess: (data) => {
-      window.location.href = data.checkout_url;
+  const provision = useMutation({
+    mutationFn: () => provisionTenant({ subdomain, plan }),
+    onSuccess: (tenant) => {
+      queryClient.invalidateQueries({ queryKey: ['tenants'] });
+      queryClient.invalidateQueries({ queryKey: ['current-tenant'] });
+      navigate({ to: '/status/$tenantId', params: { tenantId: tenant.id } });
     },
   });
 
   const selectedPlan = PLANS.find((p) => p.id === plan)!;
-  const canSubmit = check === 'available' && !checkout.isPending && !selectedPlan.contactSales;
+  const canSubmit = check === 'available' && !provision.isPending && !selectedPlan.contactSales;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -101,7 +104,7 @@ function ProvisionForm() {
               maxLength={30}
               className="h-11 border-0 bg-transparent font-mono shadow-none focus-visible:ring-0"
               autoFocus
-              disabled={checkout.isPending}
+              disabled={provision.isPending}
             />
             <div className="flex items-center border-l border-border bg-secondary/60 px-3 font-mono text-sm text-muted-foreground shrink-0">
               {t('provision.subdomain.suffix')}
@@ -142,47 +145,17 @@ function ProvisionForm() {
             </div>
           </div>
 
-          {/* Billing toggle */}
-          <div className="flex items-center gap-1 self-start rounded-lg border border-border bg-secondary/40 p-1">
-            <button
-              type="button"
-              onClick={() => setBilling('monthly')}
-              className={cn(
-                'rounded-md px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-all',
-                billing === 'monthly'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              Mensuel
-            </button>
-            <button
-              type="button"
-              onClick={() => setBilling('annual')}
-              className={cn(
-                'flex items-center gap-1.5 rounded-md px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-all',
-                billing === 'annual'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              Annuel
-              <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold text-primary">-20%</span>
-            </button>
-          </div>
-
           <div className="grid gap-3 md:grid-cols-3">
             {PLANS.map((p) => {
               const selected = plan === p.id;
-              const displayPrice = isFr
-                ? (billing === 'annual' && p.priceFcfaAnnual ? p.priceFcfaAnnual : p.priceFcfa)
-                : (billing === 'annual' && p.priceEurAnnual ? p.priceEurAnnual : p.priceEur);
+              const displayPrice = isFr ? p.priceFcfa : p.priceEur;
+              const currency = isFr ? 'FCFA' : '€';
               return (
                 <button
                   key={p.id}
                   type="button"
                   onClick={() => setPlan(p.id)}
-                  disabled={checkout.isPending}
+                  disabled={provision.isPending}
                   className={cn(
                     'group relative flex flex-col rounded-xl border p-5 text-left transition-all',
                     selected
@@ -217,14 +190,14 @@ function ProvisionForm() {
                         <span className="font-display text-2xl font-bold">
                           {displayPrice?.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: isFr ? 0 : 2 })}
                         </span>
-                        <span className="text-xs text-muted-foreground">{isFr ? 'FCFA/mois' : '€/mois'}</span>
+                        <span className="text-xs text-muted-foreground">{currency}/mois</span>
                       </>
                     )}
                   </div>
 
                   {!p.contactSales && (
                     <p className="mt-0.5 font-mono text-[10px] text-muted-foreground/60">
-                      {billing === 'annual' ? 'facturé annuellement' : 'facturé mensuellement'}
+                      après 15 jours d&apos;essai gratuit
                     </p>
                   )}
 
@@ -248,13 +221,13 @@ function ProvisionForm() {
           </div>
         </div>
 
-        {checkout.isError && (
+        {provision.isError && (
           <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-medium">{t('provision.error.title')}</p>
               <p className="mt-0.5 text-destructive/80">
-                {checkout.error instanceof Error ? checkout.error.message : t('provision.error.retry')}
+                {provision.error instanceof Error ? provision.error.message : t('provision.error.retry')}
               </p>
             </div>
           </div>
@@ -289,19 +262,19 @@ function ProvisionForm() {
             </a>
           ) : (
             <Button
-              onClick={() => checkout.mutate()}
+              onClick={() => provision.mutate()}
               disabled={!canSubmit}
               className="glow-primary shrink-0"
             >
-              {checkout.isPending ? (
+              {provision.isPending ? (
                 <>
                   <ProvisioningSpinner size="xs" />
-                  Redirection vers le paiement...
+                  {t('provision.submit.pending')}
                 </>
               ) : (
                 <>
-                  <CreditCard className="h-4 w-4" />
-                  Payer et lancer
+                  <Rocket className="h-4 w-4" />
+                  Lancer mon CRM — Essai gratuit 15 jours
                 </>
               )}
             </Button>
